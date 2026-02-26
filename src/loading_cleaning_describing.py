@@ -20,6 +20,9 @@ print((df["word"] != df["word"].str.lower()).sum())
 print((df["word"] != df["word"].str.strip()).sum())
 print(df["word"].str.contains(" ").sum())
 print(df["word"].duplicated().sum())
+# checks to make sure "word" doesn't need to be normalized (no uppercase, no leading/trailing whitespaces, no spaces inside words)
+# checks for duplicates
+# prints "0" for all checks (no normalization needed, no duplicates)
 
 data_dictionary = {}
 for col in df.columns:
@@ -38,3 +41,8 @@ df_dictionary = df_dictionary.reset_index().rename(columns={"index": "column nam
 
 print(df_dictionary)
 # turns data dict into a table (for README?)
+
+cols = ["word", "happiness_average", "twitter_rank"]
+print(df[cols].sample(15, random_state=42))
+# prints fixed sample (sample doesn't change)
+# only includes three columns: can't figure out how to include all columns and keep return readable
