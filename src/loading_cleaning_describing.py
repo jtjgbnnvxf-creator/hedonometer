@@ -16,6 +16,11 @@ print(df.head())
 # all numeric columns are already numeric types (_rank is int64, rest is float64)
 # 8 columns, 1022 rows
 
+print((df["word"] != df["word"].str.lower()).sum())
+print((df["word"] != df["word"].str.strip()).sum())
+print(df["word"].str.contains(" ").sum())
+print(df["word"].duplicated().sum())
+
 data_dictionary = {}
 for col in df.columns:
     formatted_name = col.replace("_", " ")
@@ -26,8 +31,10 @@ for col in df.columns:
     }
 
 print(data_dictionary)
+# creates data dict with neat column names (no _)
 
 df_dictionary = pd.DataFrame.from_dict(data_dictionary, orient="index")
 df_dictionary = df_dictionary.reset_index().rename(columns={"index": "column name"})
 
 print(df_dictionary)
+# turns data dict into a table (for README?)
