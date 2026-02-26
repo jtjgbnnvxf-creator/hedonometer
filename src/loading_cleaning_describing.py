@@ -16,6 +16,23 @@ print(df.head())
 # all numeric columns are already numeric types (_rank is int64, rest is float64)
 # 8 columns, 1022 rows
 
+expected_columns = [
+    "word",
+    "happiness_rank",
+    "happiness_average",
+    "happiness_standard_deviation",
+    "twitter_rank",
+    "google_rank",
+    "nyt_rank",
+    "lyrics_rank"]
+print("Schema check:", set(expected_columns) == set(df.columns))
+# sanity check 1: prints True if all expected columns are in DF
+# catches (returns False if) wrong file, wrong delimiter, shifted header, column rename
+
+print("Min happiness:", df["happiness_average"].min())
+print("Max happiness:", df["happiness_average"].max())
+print("Min std dev:", df["happiness_standard_deviation"].min())
+
 print((df["word"] != df["word"].str.lower()).sum())
 print((df["word"] != df["word"].str.strip()).sum())
 print(df["word"].str.contains(" ").sum())
@@ -46,3 +63,9 @@ cols = ["word", "happiness_average", "twitter_rank"]
 print(df[cols].sample(15, random_state=42))
 # prints fixed sample (sample doesn't change)
 # only includes three columns: can't figure out how to include all columns and keep return readable
+
+print(df.nlargest(10, "happiness_average"))
+print(df.nsmallest(10, "happiness_average"))
+# prints ten most and least positive words by average happiness
+# most positive: laughter, happiness, love, happy, laughed, laugh, laughing, excellent, laughs, joy
+# least positive: suicide, terrorist, rape, murder, terrorism, cancer, death, died, kill, killed
