@@ -15,3 +15,19 @@ print(df.head())
 # 5222 missing values for all _rank
 # all numeric columns are already numeric types (_rank is int64, rest is float64)
 # 8 columns, 1022 rows
+
+data_dictionary = {}
+for col in df.columns:
+    formatted_name = col.replace("_", " ")
+
+    data_dictionary[formatted_name] = {
+        "dtype": str(df[col].dtype),
+        "missing values": int(df[col].isna().sum())
+    }
+
+print(data_dictionary)
+
+df_dictionary = pd.DataFrame.from_dict(data_dictionary, orient="index")
+df_dictionary = df_dictionary.reset_index().rename(columns={"index": "column name"})
+
+print(df_dictionary)
