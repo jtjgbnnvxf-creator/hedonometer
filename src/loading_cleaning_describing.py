@@ -13,7 +13,7 @@ df.info()
 print(df.head())
 # no missing values for word, happiness_rank, _average & _standard_deviation
 # 5222 missing values for all _rank
-# all numeric columns are already numeric types (_rank is int64, rest is float64)
+# all numeric columns are already numeric types
 # 8 columns, 1022 rows
 
 expected_columns = [
@@ -27,11 +27,13 @@ expected_columns = [
     "lyrics_rank"]
 print("Schema check:", set(expected_columns) == set(df.columns))
 # sanity check 1: prints True if all expected columns are in DF
-# catches (returns False if) wrong file, wrong delimiter, shifted header, column rename
+# catches wrong file, wrong delimiter, shifted header, column rename
 
 print("Min happiness:", df["happiness_average"].min())
 print("Max happiness:", df["happiness_average"].max())
 print("Min std dev:", df["happiness_standard_deviation"].min())
+# sanity check 2: value-range check, happiness_average should be between 1 and 9 and standard deviation should be >= 0
+# catches parsing errors, wrong dtype, corrupted data
 
 print((df["word"] != df["word"].str.lower()).sum())
 print((df["word"] != df["word"].str.strip()).sum())
@@ -57,7 +59,7 @@ df_dictionary = pd.DataFrame.from_dict(data_dictionary, orient="index")
 df_dictionary = df_dictionary.reset_index().rename(columns={"index": "column name"})
 
 print(df_dictionary)
-# turns data dict into a table (for README?)
+# turns data dict into a table (to add to README (neccessary?))
 
 cols = ["word", "happiness_average", "twitter_rank"]
 print(df[cols].sample(15, random_state=42))
