@@ -1,6 +1,18 @@
 # Created by venv; see https://docs.python.org/3/library/venv.html
+<<<<<<< HEAD
 
 # Virtual environments
 .venv/
 __pycache__/
+=======
+# Virtual environments
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# macOS system files
+>>>>>>> orignal_code
 .DS_Store
