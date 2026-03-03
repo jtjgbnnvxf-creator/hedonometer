@@ -5,6 +5,20 @@
 </p>
 
 ---
+# 1 The dataset
+## 1.1 Loading the dataset
+
+The dataset was loaded as a dataframe using the "pandas" library. The first three lines were skipped, as they contained comments rather than data. What remains are 10222 rows and eight columns. In four of these columns (twitter_rank, google_rank, nyt_rank and lyrics_rank) there are missing values (--). Missing values here mean that a word did not appear in a corpus, either at all or not at a frequency high enough to be given a rank.
+
+## 1.2 Creating the data dictionary 
+
+The first column, "word", contains 10222 words in the form of strings. In the column "happiness_rank", each word is ranked in terms of its percieved positivity or negativity (for example, a "2" in this column denotes the second most positive word overall), here in the form of an integer. The remaining columns contain float values. "Happiness_average" provides the mean score of every word's negativity or positivity across raters. The standard deviation, so to what extent there was disagreement between raters about a word's positivity or negativity, is given in the column "happiness_standard_deviation". There are no missing values in any of the columns listed so far. In the columns "twitter_rank", "google_rank", "nyt_rank" and "lyrics_rank", there are 5222 missing values per column. The columns show the frequency rank of each remaining word in the respective corpus. "Twitter_rank" thus ranks each word that appeared in the Twitter corpus based on how frequently it appeared, with lower values again indicating higher frequency. "Google_rank" does the same for words in the Google corpus, "nyt_rank" for the New York Times corpus, and "lyrics_rank" for a corpus of lyrics.
+
+## 1.3. Sanity checks
+
+The first sanity check implemented is a schema check. All eight columns are defined as expected columns, and the check returns "True" if the dataframe contains all expected columns. This ensures that the right file was loaded, the right delimiter used and that no accidental changes were made to the dataset. Second, there is a value-range check. This returns the lowest and highest values in "happiness_average", and the lowest value in "happiness_standard_deviation". The values for "happiness_average" should be between one and nine, and the standard deviation should not be negative. If the check returns a value outside of what is expected, the column may not have the right dtype, the data may be corrupted or there may be parsing errors.
+
+The ten most positive and negative words by average happiness intuitively make sense. Five out of the ten most positive words are different forms of the root word "laugh", there are two forms of the root word "happy", as well as "joy", "excellent" and "love". Laughter is a natural indicator of happiness, for which joy is practically synonymous, and, together with love, happiness is one of the most positive emotions. "Excellent" is a bit more surprising, as it does not feel like a significantly more positive way of describing something than "marvelous", "perfect", "outstanding", and so on. The ten most negative words pattern around the domains death and violence. Seven of them directly or indirectly relate to death. Six of the words are connected to violence. What stands out is that the root word "terror" appears twice, once as "terrorist" and once as "terrorism". That "terrorist" is considered a more negative word than "rape", and "terrorism" is percieved more negatively than "death" is somewhat surprising. However, in the context of a post-9/11 world that fought a war on terror for 20 years, the strong negative connotations of "terror" again make sense.
 
 ## 4.1 Reconstruct the pipeline
 
