@@ -11,7 +11,7 @@ plt.xlabel('Happiness Score')
 plt.ylabel('Frequency')
 plt.tight_layout()
 plt.savefig('happiness_histogram.png')  # saves as image
-plt.show()
+plt.close() #changed from plt.show() to plt.close() to avoid displaying the plot in interactive environments
 
 # --- Summary statistics ---
 col = df['happiness_average']
@@ -21,3 +21,18 @@ print("Median:      ", col.median())
 print("Std Dev:     ", col.std())
 print("5th pctile:  ", col.quantile(0.05))
 print("95th pctile: ", col.quantile(0.95))
+
+# --- 2.2 Scatterplot: average vs standard deviation ---
+plt.figure()
+plt.scatter(df['happiness_average'], df['happiness_standard_deviation'], 
+            alpha=0.3, color='steelblue', edgecolors='none', s=10)
+plt.title('Happiness Average vs Standard Deviation')
+plt.xlabel('Happiness Average')
+plt.ylabel('Standard Deviation')
+plt.tight_layout()
+plt.savefig('happiness_scatter.png')
+plt.close() #changed from plt.show() to plt.close() to avoid displaying the plot in interactive environments
+
+# --- Top 15 most contested words ---
+top15 = df.nlargest(15, 'happiness_standard_deviation')[['word', 'happiness_average', 'happiness_standard_deviation']]
+print(top15.to_string(index=False))
