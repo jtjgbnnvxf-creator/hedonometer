@@ -42,7 +42,7 @@ print("\nSurprising Words:\n", surprising[["word", "happiness_average","happines
 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 md_path = "word_exhibit.md"
 
-with open(md_path, "a") as f:
+with open(md_path, "w") as f:
     f.write(f"# Hedonometer Word Analysis\n\n")
     f.write("##20-Word Summary Table\n\n")
     f.write(summary_table.to_markdown(index=False))
