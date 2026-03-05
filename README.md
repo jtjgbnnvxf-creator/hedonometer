@@ -51,6 +51,12 @@ In general, the 5 words are contested because they are problematic, in the way t
 Some respondents perceive these words as strongly negative, while others interpret them as neutral or even positive. This depends on the context and personal experiences. 
 
 
+## 3.1 Word Exhibit
+
+Within both the “Very Positive” and “Very Negative” categories, the words that are presented have a universal connotation. The words in “Very Positive” are all synonyms of each other and are typically used in a positive manner. The meanings within the “Very Negative” category have very obvious negative connotations and societal implications, as some of the words engage in human rights abuse. Both categories' words spark an emotional reaction that warrants their respective scores. However, some words found in the “Highly Contested” and “Surprising” categories have iterations of each other or found in both lists; for example, the words “fucking,” “pussy,” and “capitalism.” Unlike the other two categories, the meanings and contexts of these words depend on where they are found and how they are used. Hence, they are found in their respective categories, as different communities may see these words as vulgar or a way to express oneself. 
+
+A happiness score depended on how it was interpreted and evaluated by the Amazon Mechanical Turk. Unfortunately, this would not account for the varied perspectives in the English community and how different speakers might construe the given words. The words captured in the word_exhibit.md encompass both universal meanings and a range of meanings. The Muslim community may approach the word “Islam”  with a sense of reverence, as it is a major world religion. Meanwhile, the far-right Republican Party in the United States may use this word to fearmonger or spread misinformation to the general public. Another instance would befall the word “whiskey,” as the alcoholic community would see the beverage in a negative manner, while others may see it as a way to pass the time. From person to person and community to community, the use of words found in the table triggers a different emotional reaction depending on people’s life experiences and societal connotations. 
+
 
 ## 4.1 Reconstruct the pipeline
 
