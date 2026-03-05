@@ -20,16 +20,17 @@ The first sanity check implemented is a schema check. All eight columns are defi
 
 The ten most positive and negative words by average happiness intuitively make sense. Five out of the ten most positive words are different forms of the root word "laugh", there are two forms of the root word "happy", as well as "joy", "excellent" and "love". Laughter is a natural indicator of happiness, for which joy is practically synonymous, and, together with love, happiness is one of the most positive emotions. "Excellent" is a bit more surprising, as it does not feel like a significantly more positive way of describing something than "marvelous", "perfect", "outstanding", and so on. The ten most negative words pattern around the domains death and violence. Seven of them directly or indirectly relate to death. Six of the words are connected to violence. What stands out is that the root word "terror" appears twice, once as "terrorist" and once as "terrorism". That "terrorist" is considered a more negative word than "rape", and "terrorism" is percieved more negatively than "death" is somewhat surprising. However, in the context of a post-9/11 world that fought a war on terror for 20 years, the strong negative connotations of "terror" again make sense.
 
+# 2. Quantitative exploration: distributions and relationships
 
-### 2.1 Distribution of happiness score 
+## 2.1 Distribution of happiness scores 
 
-### Histogram Interpretation
+## Histogram Interpretation
 Firstly, the distribution is centered around 5 to 6 on average happiness score. The highest concentration of words are clustered approximately around 5.5 to 6. 
 We can interpret this according to Dodds et al. (2011) who discuss that the ratings of the word "happiness" are not entirely neutral at 5. Overall, the ratings are slightly more positive.  
 The distribution of happiness scores is slightly skewed to the right, which indicates that it is skewed towards happiness. 
 In conclusion, most of the scores fall between 5 and 6, with a peak around 5.5. This indicates that many words have happiness scores between 5 and 7. 
 
-### Unexpected Pattern 
+## Unexpected Pattern 
 One pattern we did not expect was the happiness score above 7 would be less frequent than under 5. 
 Additionally, there are more words rated slightly positive than slightly negative. 
 We might expect symmetry around 5 because 5 is defined as neutral in the labMT scale (Dodds et al., 2011). However, the histogram shows a structural shift upward. 
@@ -37,13 +38,13 @@ This is unexpected because the distribution is uneven as more words are rated po
 This further supports the idea that common English words present a tendency towards higher happiness scores instead of true emotional neutrality. 
 
 
-### 2.2 Disagreement: which words are "contested"? 
+## 2.2 Disagreement: which words are "contested"? 
 To identify contested words, we slected the 15 entries with the highest values in the happiness_standard_deviation column (y-axis). 
 These words appear at the top of the scatterplot (highest values on the y-axis), which indicates strong disagreement among respondents about their emotional meaing. 
 We have selected 5 of the "most disagreed-about" words to explore the reasons why they are contested: "fucking", "fuckin", "fucked", "pussy", and "whiskey". 
 These words have the highest standard deviation values which signifies that they generate the most disagreement about how positive or negative the words are. 
 
-### Analysis
+## Analysis
 The main characterstic of these words is that they have negative connotations associated with them. For example, the words "fucking", "fuckin", "fucked", and "pussy"  are vulgar and considered highly inappropriate and offensive. Even though such words can be used in daily casual conversations as slang, they still hold very negative meanings. 
 Meanwhile, "whiskey" has a neutral meaning and refers to the alcoholic beverage. We can consider how some may associate it with leisure, celebration, or socializing. Therefore, individuals may rate it positively. 
 On the other hand, others can associate "whiskey" with negative experiences, alcohol abuse, or simply because they do not like it. Consequently, the word will have a lower happiness score. 
