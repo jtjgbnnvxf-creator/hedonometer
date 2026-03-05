@@ -49,6 +49,15 @@ On the other hand, others can associate "whiskey" with negative experiences, alc
 In general, the 5 words are contested because they are problematic, in the way that they can cause issues if they are used to verbally insult or harm someone (except for "whiskey"). The high standard deviation reflects the degree of disagreement of the emotional tone of the words. 
 Some respondents perceive these words as strongly negative, while others interpret them as neutral or even positive. This depends on the context and personal experiences. 
 
+## 2.3 Corpus comparison: what counts as "common language" depends on where you look
+The four different corpora all represent various contexts and styles of language usage. 
+Firstly, Twitter represents informal and real-time communication between users in daily situations. Tweets often contain casual diction such as slang and abbreviations. 
+Furthermore, Google Books represents a broad and historical range of language from  books, with more formal and edited words across genres and time periods. 
+The New York Times corpus provides formal vocabulary that is based on specific topics and shaped by reporting conventions. 
+Lastly, song lyrics form the most creative corpus among the others, in which language is highly expressive. 
+We can suggest that these differences emphasize how "common language" varies across corpora and depends on what kind of individuals are represented. 
+Language styles, choice of vocabulary, and many other factors influence what is perceived as "common language".
+
 
 ## 3.1 Word Exhibit
 
