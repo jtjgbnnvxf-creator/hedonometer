@@ -23,8 +23,6 @@ The ten most positive and negative words by average happiness intuitively make s
 # 2. Quantitative exploration: distributions and relationships
 
 ## 2.1 Distribution of happiness scores 
-
-## Histogram Interpretation
 Firstly, the distribution is centered around 5 to 6 on average happiness score. The highest concentration of words are clustered approximately around 5.5 to 6. 
 We can interpret this according to Dodds et al. (2011) who discuss that the ratings of the word "happiness" are not entirely neutral at 5. Overall, the ratings are slightly more positive.  
 The distribution of happiness scores is slightly skewed to the right, which indicates that it is skewed towards happiness. 
