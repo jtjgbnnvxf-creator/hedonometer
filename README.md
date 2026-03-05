@@ -1,4 +1,4 @@
-# Hedonometer
+# Hedonometer Group 8 
 
 <p align="center">
   <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Word_cloud_example.png" width="600"/>
@@ -20,16 +20,15 @@ The first sanity check implemented is a schema check. All eight columns are defi
 
 The ten most positive and negative words by average happiness intuitively make sense. Five out of the ten most positive words are different forms of the root word "laugh", there are two forms of the root word "happy", as well as "joy", "excellent" and "love". Laughter is a natural indicator of happiness, for which joy is practically synonymous, and, together with love, happiness is one of the most positive emotions. "Excellent" is a bit more surprising, as it does not feel like a significantly more positive way of describing something than "marvelous", "perfect", "outstanding", and so on. The ten most negative words pattern around the domains death and violence. Seven of them directly or indirectly relate to death. Six of the words are connected to violence. What stands out is that the root word "terror" appears twice, once as "terrorist" and once as "terrorism". That "terrorist" is considered a more negative word than "rape", and "terrorism" is percieved more negatively than "death" is somewhat surprising. However, in the context of a post-9/11 world that fought a war on terror for 20 years, the strong negative connotations of "terror" again make sense.
 
+# 2. Quantitative exploration: distributions and relationships
 
-### 2.1 Distribution of happiness score 
-
-### Histogram Interpretation
+## 2.1 Distribution of happiness scores 
 Firstly, the distribution is centered around 5 to 6 on average happiness score. The highest concentration of words are clustered approximately around 5.5 to 6. 
 We can interpret this according to Dodds et al. (2011) who discuss that the ratings of the word "happiness" are not entirely neutral at 5. Overall, the ratings are slightly more positive.  
 The distribution of happiness scores is slightly skewed to the right, which indicates that it is skewed towards happiness. 
 In conclusion, most of the scores fall between 5 and 6, with a peak around 5.5. This indicates that many words have happiness scores between 5 and 7. 
 
-### Unexpected Pattern 
+## Unexpected Pattern 
 One pattern we did not expect was the happiness score above 7 would be less frequent than under 5. 
 Additionally, there are more words rated slightly positive than slightly negative. 
 We might expect symmetry around 5 because 5 is defined as neutral in the labMT scale (Dodds et al., 2011). However, the histogram shows a structural shift upward. 
@@ -37,19 +36,25 @@ This is unexpected because the distribution is uneven as more words are rated po
 This further supports the idea that common English words present a tendency towards higher happiness scores instead of true emotional neutrality. 
 
 
-### 2.2 Disagreement: which words are "contested"? 
+## 2.2 Disagreement: which words are "contested"? 
 To identify contested words, we slected the 15 entries with the highest values in the happiness_standard_deviation column (y-axis). 
 These words appear at the top of the scatterplot (highest values on the y-axis), which indicates strong disagreement among respondents about their emotional meaing. 
 We have selected 5 of the "most disagreed-about" words to explore the reasons why they are contested: "fucking", "fuckin", "fucked", "pussy", and "whiskey". 
 These words have the highest standard deviation values which signifies that they generate the most disagreement about how positive or negative the words are. 
 
-### Analysis
+## Analysis
 The main characterstic of these words is that they have negative connotations associated with them. For example, the words "fucking", "fuckin", "fucked", and "pussy"  are vulgar and considered highly inappropriate and offensive. Even though such words can be used in daily casual conversations as slang, they still hold very negative meanings. 
 Meanwhile, "whiskey" has a neutral meaning and refers to the alcoholic beverage. We can consider how some may associate it with leisure, celebration, or socializing. Therefore, individuals may rate it positively. 
 On the other hand, others can associate "whiskey" with negative experiences, alcohol abuse, or simply because they do not like it. Consequently, the word will have a lower happiness score. 
 In general, the 5 words are contested because they are problematic, in the way that they can cause issues if they are used to verbally insult or harm someone (except for "whiskey"). The high standard deviation reflects the degree of disagreement of the emotional tone of the words. 
 Some respondents perceive these words as strongly negative, while others interpret them as neutral or even positive. This depends on the context and personal experiences. 
 
+
+## 3.1 Word Exhibit
+
+Within both the “Very Positive” and “Very Negative” categories, the words that are presented have a universal connotation. The words in “Very Positive” are all synonyms of each other and are typically used in a positive manner. The meanings within the “Very Negative” category have very obvious negative connotations and societal implications, as some of the words engage in human rights abuse. Both categories' words spark an emotional reaction that warrants their respective scores. However, some words found in the “Highly Contested” and “Surprising” categories have iterations of each other or found in both lists; for example, the words “fucking,” “pussy,” and “capitalism.” Unlike the other two categories, the meanings and contexts of these words depend on where they are found and how they are used. Hence, they are found in their respective categories, as different communities may see these words as vulgar or a way to express oneself. 
+
+A happiness score depended on how it was interpreted and evaluated by the Amazon Mechanical Turk. Unfortunately, this would not account for the varied perspectives in the English community and how different speakers might construe the given words. The words captured in the word_exhibit.md encompass both universal meanings and a range of meanings. The Muslim community may approach the word “Islam”  with a sense of reverence, as it is a major world religion. Meanwhile, the far-right Republican Party in the United States may use this word to fearmonger or spread misinformation to the general public. Another instance would befall the word “whiskey,” as the alcoholic community would see the beverage in a negative manner, while others may see it as a way to pass the time. From person to person and community to community, the use of words found in the table triggers a different emotional reaction depending on people’s life experiences and societal connotations. 
 
 
 ## 4.1 Reconstruct the pipeline
