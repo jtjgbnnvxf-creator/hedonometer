@@ -66,9 +66,8 @@ Within both the “Very Positive” and “Very Negative” categories, the word
 A happiness score depended on how it was interpreted and evaluated by the Amazon Mechanical Turk. Unfortunately, this would not account for the varied perspectives in the English community and how different speakers might construe the given words. The words captured in the word_exhibit.md encompass both universal meanings and a range of meanings. The Muslim community may approach the word “Islam”  with a sense of reverence, as it is a major world religion. Meanwhile, the far-right Republican Party in the United States may use this word to fearmonger or spread misinformation to the general public. Another instance would befall the word “whiskey,” as the alcoholic community would see the beverage in a negative manner, while others may see it as a way to pass the time. From person to person and community to community, the use of words found in the table triggers a different emotional reaction depending on people’s life experiences and societal connotations. 
 
 
-## 4.1 Reconstruct the pipeline
-
-> *Hedonometer is a methodological tool proposed by Dods et al. (2021) for large-scale, text-based measuring of happiness. In a nutshell, this method allows to assess the average happiness expressed in large texts by using happiness score applied to frequently used words.*
+## 4.1 Reconstruct the pipeline (data provenance)
+> *Hedonometer is a methodological tool proposed by Dodds et al. (2011) for large-scale, text-based measuring of happiness. In a nutshell, this method allows to assess the average happiness expressed in large texts by using happiness score applied to frequently used words.*
 
 The data set already includes the information from labMT lexicon - a word-happiness dictionary used to measure emotional valence. The columns include following variables: words, happiness_rank, happiness_average, happiness_standard_deviation, twitter_rank, google_rank, nyt_rank, lyrics_rank. Based on this information we can reconstruct the pipeline:
 
@@ -82,7 +81,7 @@ The data set already includes the information from labMT lexicon - a word-happin
 
 ### 2. Happiness score assessment
 
-During this step, the chosen words are being assessed by mechanical turks, who rate the words on the scale from 1 to 9. This score was used to compute happiness_rank, happiness_average, happiness_standard_deviation.
+During this step, the chosen words are being assessed by Mechanical Turks, who rate the words on the scale from 1 to 9. This score was used to compute happiness_rank, happiness_average, happiness_standard_deviation.
 
 ---
 
@@ -90,9 +89,6 @@ During this step, the chosen words are being assessed by mechanical turks, who r
 
 Four corpora were chosen: Twitter, Google Books, New York Times and Song lyrics. After. Then the frequency was checked, how often does each word appear in each media. Based on this, ranks were assigned. So lower is the number, higher is the frequency.
 
-<p align="center">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Sentiment_analysis_diagram.png" width="600"/>
-</p>
 
 ---
 
@@ -104,27 +100,28 @@ The data was merged into one table and missing values were encoded.
 
 ## 4.2 Consequences and limitations
 
-### 1. Context deprivation
+### 1. Idiomatic expressions
 
-The word selection includes exclusively single word tokens, thus, providing the words stripped from the context, sarcasm and slang. Thus, words, especially ones on the margins (e.g. nsmallest/nlargest), can be significantly simplified, which impacts its rating. For instance, word kill is often used in positive slang like "he is killing it" or the word dead "drop dead" or phrases "break a leg". This word selection is deprived from contextual meaning in discourse.
+The word selection includes exclusively single word tokens, thus, providing the word, which can appear as a part of idiomatic expression, completely shift the meaning when evaluated alone. For instance, word "kill", sitated on the lowest margine of happiness ranking with a very low score (1.70) is often used in positive slang like "he is killing it" or the word dead with the score 2.34 can be used in a phrase "drop dead", another example would be "break a leg". Single token words selection limits the ability of lexicon to capture idiomatic meaning that is an unseparable part of the language.
+
 
 ---
 
-### 2. Evaluation outside context
+### 2. Textual positioning
 
-Words are also evaluated outside of the context where they are situated. The context can significantly shift the meaning and emotional connotation, the same example with kill and dead, if given in a phrase or located in the context, would impact the score given by Mechanical Turks.
+Words are also evaluated outside of the context where they are situated. Through standard deviation we can see the words with highest disagreements amount annoators. For instance the word "pussy" can signify a different meaning depending on the context. This is also the word with the higher standard deviation (i.e. 2.67). The context can significantly shift in the meaning and emotional connotation and it's contextual position would impact the score given by Mechanical Turks.
 
 ---
 
 ### 3. Corpus heterogeneity
 
-Rhetorics across 4 corpora significantly diverge: twitter - informal, New York Times - institutional, Google Books - broad, Song lyrics - poetic. These are very diverse and non neutral samples. Looking at the numerical indicators that are the same across 4 corpora, assumes that they measure the same thing, while in fact context, emotions, meanings of the words can significantly vary.
+Rhetorics across 4 corpora significantly diverge: twitter - informal, New York Times - institutional, Google Books - broad, Song lyrics - poetic. These are very diverse and non neutral samples. Looking at the numerical indicators that are the same across 4 corpora, assumes that they measure the same thing, while in fact context, emotions, meanings of the words can significantly vary. As a result frequency patterns observed in the data set can indicate differences in rhetorics, rather that emotional language.
 
 ---
 
 ### 4. Annotator bias
 
-Annotators are also not neutral machines, without culture and personal history. Personal emotional perception can significantly influence the score one assigns to the word. Another word that appears on extreme end of the scale is love, the data does not provide any information, whether the annotators interpret it different. Thus, emotional meanings become generalized. In my opinion, it is essential to provide background information on the people who rate the words, to address the diversity of cultural backgrounds.
+Annotators are also not neutral machines, without culture and personal history. Personal emotional perception can significantly influence the score one assigns to the word. For instance, the words like love, joy appear on the higher end of the scale, with happiness score above 8 and standard devation around 0.9-1.1, which signifies a strong agreement amoung annotators. This can also indicate a shared cultural assumptiom and as a result emotional meanings become generalized. In my opinion, it is essential to provide background information on the people who rate the words, to address the diversity of cultural backgrounds and the possibility to speculate on generasability of the findings.
 
 ---
 
@@ -136,24 +133,19 @@ Likert scale is used to evaluate happiness level. This one-dimensional approach 
 
 ## 4.3 Instrumental note
 
-This data set can be well used for control variables for unsupervised semantic labeling (NLP/related methods). For large-scale quantitative analysis, comparison of relative values and identifying words that generate disagreement (happiness_standard_deviation) this dataset is extremely useful and methodologically transparent.
+This data set can be well used for control variables for unsupervised semantic labeling. For large-scale quantitative analysis, comparison of relative values and identifying words that generate disagreement (happiness_standard_deviation) this dataset is extremely useful and methodologically transparent.
 
 ---
 
-However, I would not use this dataset for generating claims on emotional meaning and discourse. A context deprived word list, strip sarcastic, idiomatic and slang connotations that influence the meaning construction. Words that receive strongly negative (e.g. kill, dead) ratings, can significantly shift emotional function depending on the contextual positioning. This instrument reduced complexity to a simplified numerical score. Additionally, the assumption of comparable values derived from heterogeneous corpora risks masking how rhetorics shape emotional expression.
+However, I would not use this dataset for generating claims on emotional meaning and discourse. A context deprived word list, does not reflect sarcastic, idiomatic and slang connotations that influence the meaning construction. Words that receive strongly negative (e.g. kill, dead) ratings, can significantly shift emotional function depending on the contextual positioning, idiomatic use and annotators positionality. This instrument reduce complexity to a simplified numerical score. Additionally, the assumption of comparable values derived from heterogeneous corpora risks masking how rhetorics shape emotional expression.
 
 ---
 
-This data set is particularly generated for using the method proposed by Dods et al. (2021). Thus, the limitations are inherent to it, only the change in the method can resolve outlined issues.
+This data set is particularly generated for using the method proposed by Dodds et al. (2011). Thus, the limitations are inherent to it, only the change in the method can resolve outlined issues.
 
 ---
 
-Although manual word labeling is the cornerstone of this work, it presents many systematic technical limitations as well. First, although it is possible to normalize the bias of the average rating of multiple labelers by measuring the baseline value, artifacts remain in the data, which affects the quality of the data. Second, the small number of these labelers is problematic. Because of this, the marginal data of each labeler has too much influence on the final values. Statistical indicators (standard deviation, variance) suffer as a result. Third, this approach does not allow for large-scale research with a large corpus and, for example, cross-linguistic modality.
+Although manual word labeling is the cornerstone of this work, it also presents many systematic technical limitations. First, although it is possible to normalize the bias of the average rating of multiple labelers by measuring the baseline value, artifacts remain in the data, which affects the quality of the data. Second, the small number of these labelers is problematic. Because of this, the marginal data of each labeler has too much influence on the final values. Statistical indicators (standard deviation, variance) suffer as a result. Third, this approach does not allow for large-scale research with a large corpus and, for example, cross-linguistic modality.
 
----
-
-## Future Direction
-
-Therefore, using a different method, like Natural Language Processing (NLP) would allow to resolve these issues. The use of automated extraction of semantic characteristics will help to avoid outlined issues.
 
 ---
