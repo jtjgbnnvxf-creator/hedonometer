@@ -1,9 +1,5 @@
 # Hedonometer Group 8 
 
-<p align="center">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Word_cloud_example.png" width="600"/>
-</p>
-
 ---
 # 1 The dataset
 ## 1.1 Loading the dataset
