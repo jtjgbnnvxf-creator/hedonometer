@@ -2,6 +2,18 @@
 
 ---
 # 1 The dataset
+'''mermaid
+flowchart TD
+    A[Raw Yelp Dataset] --> B[Data Cleaning] 
+    B --> C[Remove Duplicates]
+    B --> D[Remove Missing Reviews]
+    B --> E[Remove Empty Reviews]
+    C --> F[Clean Dataset]
+    D --> F
+    E --> F
+    F --> G[Analysis]
+'''
+
 ## 1.1 Loading the dataset
 
 The dataset was loaded as a dataframe using the "pandas" library. The first three lines were skipped, as they contained comments rather than data. What remains are 10222 rows and eight columns. In four of these columns (twitter_rank, google_rank, nyt_rank and lyrics_rank) there are missing values (--). Missing values here mean that a word did not appear in a corpus, either at all or not at a frequency high enough to be given a rank.
