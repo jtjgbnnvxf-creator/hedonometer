@@ -157,3 +157,10 @@ Although manual word labeling is the cornerstone of this work, it also presents 
 
 
 ---
+# Analyzing Happiness Scores in the Yelp Open Dataset 
+## Introduction 
+In this second mini-project, the labMT word list will be the instrument for measuring and analyzing the Yelp dataset. The Yelp corpus contains five files that include metadata about businesses (such as location data, attributes, and categories), users, reviews (which contain full review text, such as user_id and business_id), check-ins for a business, and users’ tips, which are shorter than reviews. For this project, we will use the two files containing business and review data. 
+We will ask the following research question: To what extent does the hedonometer happiness score of Yelp customer reviews correlate with the star ratings assigned to businesses, and do these emotional scores differ across metropolitan regions? 
+Using the hedonometer labMT word list as our framework, each Yelp review will be tokenized, matched, and the happiness scores of the matched words will be averaged to compute a review-level happiness score. The scores serve as both a quantitative measure and a visual representation of the emotional tone expressed by users in the reviews. 
+The aim of this project is to compare whether the scores correlate with the star ratings that customers give to businesses. We will explore whether the happiness scores of the hedonometer can predict or provide a correlation with Yelp star ratings. This approach is relevant because it can provide meaningful insight into how customer sentiment, as measured by happiness scores, aligns with typical business reviews. We will have a broader understanding of how the words used in ratings reflect customer satisfaction. Consequently, businesses on Yelp might use such findings to better interpret feedback and improve their services. 
+Additionally, this project analyzes the emotional tone in different regions. For example, whether reviews written by users in different urban areas, such as New York or Los Angeles in the U.S., tend to use more positive or negative words in reviews on average. 
