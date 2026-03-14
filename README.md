@@ -2,7 +2,7 @@
 
 ---
 # 1 The dataset
-'''mermaid
+```mermaid
 flowchart TD
     A[Raw Yelp Dataset] --> B[Data Cleaning] 
     B --> C[Remove Duplicates]
@@ -12,7 +12,7 @@ flowchart TD
     D --> F
     E --> F
     F --> G[Analysis]
-'''
+```
 
 ## 1.1 Loading the dataset
 
