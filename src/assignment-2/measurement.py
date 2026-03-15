@@ -2,47 +2,66 @@ import pandas as pd
 
 pd.set_option("display.max_columns", None)
 
-reviews = pd.DataFrame([
-    {"review_id": 1, "business_id": "a", "stars": 5, "text": "I love this place great food"},
-    {"review_id": 2, "business_id": "b", "stars": 1, "text": "terrible service bad experience"},
-])
-# dummy DF - replace
+# 1) Load the Yelp file that already contains reviews + business metadata
+reviews = pd.read_csv("/Users/anna/coding-humanities/projects/hedonometer-project/hedonometer/data/processed/yelp_sample.csv.gz", compression="gzip")
 
-business = pd.DataFrame([
-    {"business_id": "a", "state": "Washington", "category": "restaurant"},
-    {"business_id": "b", "state": "California", "category": "prison"},
-])
-# dummy DF - replace
+# Check column names once so you know what you're working with
+print(reviews.columns)
+print(reviews.head())
 
-labmt = pd.DataFrame([
-    {"word": "love", "happiness_score": 8.4},
-    {"word": "great", "happiness_score": 7.9},
-    {"word": "terrible", "happiness_score": 2.1},
-    {"word": "bad", "happiness_score": 2.5},
-])
-# dummy DF - replace
+# 2) Load the real LabMT file
+# Try tab-separated first; if that looks wrong, use sep=r"\s+" instead
+labmt = pd.read_csv(
+    "/Users/anna/coding-humanities/projects/hedonometer-project/hedonometer/data/raw/Data_Set_S1.txt",
+    sep=r"\s+",
+    engine="python",
+    skiprows=3
+)
 
-reviews = reviews.merge(business, on="business_id", how="left")
-# adds business metadata to review DF based on shared business IDs
+print(labmt.head())
+print(labmt.columns)
 
+# 3) Rename LabMT columns to match the rest of your code
+# Replace these names with the actual column names from your file
+labmt = labmt.rename(columns={
+    "word": "word",
+    "happiness_average": "happiness_score"
+})
+
+# Keep only the columns you need
+labmt = labmt[["word", "happiness_score"]]
+
+# Optional: clean LabMT words
+labmt["word"] = labmt["word"].astype(str).str.lower()
+
+# 4) Tokenize Yelp review text
 reviews["tokens"] = (
     reviews["text"]
+    .fillna("")
     .str.lower()
     .str.findall(r"[a-z]+")
 )
-print(reviews["tokens"])
-# tokenization: lowercases, keeps only sequences of letters (no emojis, whitespace, punctuation)
 
+print(reviews[["review_id", "tokens"]].head())
+
+# 5) One row per token
 token_df = reviews.explode("tokens")
-print(token_df)
-# new DF where each token gets one row
 
-token_df = token_df.merge(labmt, left_on="tokens", right_on="word", how="left")
-# matches tokens in yelp data with words in labMT data, merges them - keeps unmatched tokens
+# Optional: drop empty token rows
+token_df = token_df[token_df["tokens"].notna()]
 
+# 6) Merge tokens with LabMT scores
+token_df = token_df.merge(
+    labmt,
+    left_on="tokens",
+    right_on="word",
+    how="left"
+)
+
+# 7) Mark out-of-vocabulary words
 token_df["is_oov"] = token_df["happiness_score"].isna()
-# defines OOVs as tokens that aren't matched with a happiness score
 
+# 8) Review-level summary
 review_summary = (
     token_df.groupby("review_id")
     .agg(
@@ -53,11 +72,19 @@ review_summary = (
     )
     .reset_index()
 )
-review_summary["oov_rate"] = review_summary["oov_tokens"] / review_summary["total_tokens"]
-# produces mean hedonometer score of each review and count of tokens (matched/OOV)
 
+review_summary["oov_rate"] = (
+    review_summary["oov_tokens"] / review_summary["total_tokens"]
+)
+
+# 9) Merge scores back onto original Yelp rows
 scores = reviews.merge(review_summary, on="review_id", how="left")
+
 scores.info()
-print(scores)
-# merges summary back into review DF
-# prints
+print(scores.head())
+
+output_path = "/Users/anna/coding-humanities/projects/hedonometer-project/hedonometer/data/processed/yelp_hedonometer_scores.csv"
+
+scores.to_csv(output_path, index=False)
+
+print("Saved file to:", output_path)
