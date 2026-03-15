@@ -1,5 +1,4 @@
 import pandas as pd
-<<<<<<< HEAD
 import json
 import os
 import random
@@ -65,32 +64,3 @@ if __name__ == "__main__":
         sample_size=200_000,
         output_csv_path="data/yelp_sample.csv.gz"
     )
-=======
-
-def clean_and_sample(df, sample_size=25):
-    # cleans the Yelp dataset and returns a sampled version
-
-    # remove duplicate reviews
-    df = df.drop_duplicates(subset="review_id")
-
-    # remove rows with missing review text
-    df = df.dropna(subset=["text"])
-
-    # remove empty reviews
-    df = df[df["text"].str.strip() != ""]
-
-    # keep relevant columns
-    df = df[["review_id", "user_id", "business_id", "stars", "text", "date"]]
-
-    print("original size:", df.shape)
-
-    # random sample
-    sample_df = df.sample(n=sample_size, random_state=42)
-
-    # organize dataset
-    sample_df = sample_df.sort_values(by="stars")
-    sample_df = sample_df.reset_index(drop=True)
-
-    print("sample size:", sample_df.shape)
-    return df
->>>>>>> afcf13e41c98b13d2a2bf8469347f390b6f6ec99
