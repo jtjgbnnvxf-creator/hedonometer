@@ -37,6 +37,14 @@ def happiness_scoring(clean_df):
     # Optional: clean LabMT words
     labmt["word"] = labmt["word"].astype(str).str.lower()
 
+    # Remove neutral words (labMT stop words)
+# Standard hedonometer filter: remove scores between 4 and 6
+
+# Remove neutral words (labMT stop words)
+# Standard hedonometer filter: remove scores between 4 and 6
+    labmt = labmt[(labmt["happiness_score"] <= 4) | (labmt["happiness_score"] >= 6)]
+    print("LabMT size after neutral-word removal:", len(labmt))
+
     # 4) Tokenize Yelp review text
     reviews["tokens"] = (
         reviews["text"]
@@ -86,10 +94,17 @@ def happiness_scoring(clean_df):
     scores.info()
     print(scores.head())
 
-    output_path = "data/processed/yelp_hedonometer_scores.csv"
+    output_path = "data/processed/yelp_hedonometer_scores.csv.gz"
 
-    scores.to_csv(output_path, index=False)
+    scores.to_csv(output_path, index=False, compression="gzip")
 
     print("Saved file to:", output_path)
 
     return scores
+
+if __name__ == "__main__":
+    import pandas as pd
+
+    clean_df = pd.read_csv("data/raw/yelp_sample.csv.gz", compression="gzip")
+
+    happiness_scoring(clean_df)
