@@ -277,7 +277,7 @@ The plot confirms the positive relationship reported in the descriptives: median
 
 In additional to the main research question, we decided to review if this relationship varies across states and categories. The result of state-level comparison suggests that the relationship between happiness and rating is consistent across states with a small variety in magnitude. 
 
-![alt text](image.png)
+![alt text](image-3.png)
 To further investigate the state-level variation, the heatmap above breaks down the residual happiness scores by both state and star rating. Residuals represent the difference between the observed hedonometer score and the score predicted by the overall linear relationship between happiness and star rating. Blue cells indicate that reviews in that state use happier language than expected given their star rating, while red cells indicate the opposite.
 
 
@@ -312,21 +312,3 @@ On the other hand, category-level comparison did not produce the same consistenc
 
 ---
 
-
-## Visualization
-The visualization of the of our research question is split into two plots; a boxplot reviewing the correlation between the happiness score on the hedonometer and the star ratings to the businesses on Yelp, and a ...plot to review the mismatch between happiness and star ratings across different metropolitan regions. 
-For Happiness vs Stars, we ultimately opted for a boxplot instead of a scatterplot after consulting with Claude.AI, as a boxplot was more fitting to the amount of data that needed to be visualized, leading to less messy visualization. To better the aesthatic layout of the visualization, seaborn was used on top op matplotlib.
-For the mismatch between happiness and star ratings across the different metropolitan areas
-
-### Happiness vs Stars
-![alt text](image-1.png) ![alt text](image-2.png)
-<<<<<<< HEAD
-The boxplot shows a positive correlation between happiness score on the hedonometer and the star rating. The table shows the exact values of the boxplot
-
-### Mismatch happiness and star ratings across the different metropolitan areas
-=======
-The boxplot shows a positive correlation between happiness score on the hedonometer and the star rating.
-
-
-
->>>>>>> origin/main
