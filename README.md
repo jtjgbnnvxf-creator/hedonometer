@@ -171,8 +171,10 @@ Additionally, this project analyzes the emotional tone in different regions. For
 ## Visualization
 The visualization of the of our research question is split into two plots; a boxplot reviewing the correlation between the happiness score on the hedonometer and the star ratings to the businesses on Yelp, and a ...plot to review the mismatch between happiness and star ratings across different metropolitan regions. 
 For Happiness vs Stars, we ultimately opted for a boxplot instead of a scatterplot after consulting with Claude.AI, as a boxplot was more fitting to the amount of data that needed to be visualized, leading to less messy visualization. To better the aesthatic layout of the visualization, seaborn was used on top op matplotlib.
-For the mismatch between happiness and star ratings
+For the mismatch between happiness and star ratings across the different metropolitan areas
 
 ### Happiness vs Stars
 ![alt text](image-1.png) ![alt text](image-2.png)
-The boxplot shows a positive correlation between happiness score on the hedonometer and the star rating.
+The boxplot shows a positive correlation between happiness score on the hedonometer and the star rating. The table shows the exact values of the boxplot
+
+### Mismatch happiness and star ratings across the different metropolitan areas
