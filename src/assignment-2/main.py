@@ -17,7 +17,7 @@ from visualization import visualize_data
 #clean_df = clean_and_sample_yelp_lines('data/raw/yelp_academic_dataset_review.json', 'data/raw/yelp_academic_dataset_business.json', sample_size=200_000, output_csv_path="data/yelp_sample.csv.gz")
 
 # 2.2 READING:
-clean_df = pd.read_csv('data/raw/yelp_sample.csv.gz', compression="gzip")
+clean_df = pd.read_csv('data/processed/yelp_hedonometer_scores.csv.gz', compression="gzip")
 
 # 3. SCORING
 
@@ -25,7 +25,7 @@ clean_df = pd.read_csv('data/raw/yelp_sample.csv.gz', compression="gzip")
 scored_df = happiness_scoring(clean_df)
 
 # 3.2 READING:
-#scored_df = pd.read_csv('data/processed/yelp_hedonometer_scores.csv')
+#scored_df = pd.read_csv('data/processed/yelp_hedonometer_scores.csv.gz')
 # new fiels: tokens, happiness_score, total_tokens, matched_tokens, oov_tokens, oov_rate
 
 # 4. ANALYSIS
