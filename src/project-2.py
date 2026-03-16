@@ -1,10 +1,9 @@
-print("script started")
 import pandas as pd
 import matplotlib.pyplot as plt
 
 # Load data
-df = pd.read_csv(
-    '/Users/danielsitumeang/Desktop/coding-humanities/data/processed/Data_Set_S1.csv')
+df = pd.read_csv('/Users/danielsitumeang/Desktop/coding-humanities/data/processed/Data_Set_S1.csv')
+
 # --- Histogram ---
 df['happiness_average'].hist(bins=20, color='steelblue', edgecolor='black')
 plt.title('Distribution of Happiness Scores')
@@ -37,4 +36,3 @@ plt.close() #changed from plt.show() to plt.close() to avoid displaying the plot
 # --- Top 15 most contested words ---
 top15 = df.nlargest(15, 'happiness_standard_deviation')[['word', 'happiness_average', 'happiness_standard_deviation']]
 print(top15.to_string(index=False))
-

@@ -168,49 +168,11 @@ Using the hedonometer labMT word list as our framework, each Yelp review will be
 The aim of this project is to compare whether the scores correlate with the star ratings that customers give to businesses. We will explore whether the happiness scores of the hedonometer can predict or provide a correlation with Yelp star ratings. This approach is relevant because it can provide meaningful insight into how customer sentiment, as measured by happiness scores, aligns with typical business reviews. We will have a broader understanding of how the words used in ratings reflect customer satisfaction. Consequently, businesses on Yelp might use such findings to better interpret feedback and improve their services. 
 Additionally, this project analyzes the emotional tone in different regions. For example, whether reviews written by users in different urban areas, such as New York or Los Angeles in the U.S., tend to use more positive or negative words in reviews on average. 
 
-## 1. From the Random Sample to the Final Dataset
+## Visualization
+The visualization of the of our research question is split into two plots; a boxplot reviewing the correlation between the happiness score on the hedonometer and the star ratings to the businesses on Yelp, and a ...plot to review the mismatch between happiness and star ratings across different metropolitan regions. 
+For Happiness vs Stars, we ultimately opted for a boxplot instead of a scatterplot after consulting with Claude.AI, as a boxplot was more fitting to the amount of data that needed to be visualized, leading to less messy visualization. To better the aesthatic layout of the visualization, seaborn was used on top op matplotlib.
+For the mismatch between happiness and star ratings
 
-The LabMT dataset was loaded as a dataframe, and irrelevant columns were disregarded. Two columns remained, “word” and “happiness_score”. Words with happiness scores between 4 and 6 were removed from the LabMT lexicon. This range is considered emotionally neutral in the LabMT framework. Because neutral words are very common, including them would push average review scores toward the midpoint of the scale and weaken the influence of clearly positive or negative words. Removing them follows standard hedonometer practice and produces more informative sentiment scores. Afterwards, 3731 words were left in the LabMT dictionary. 
-The cleaned random sample of Yelp reviews was tokenized. A dataframe containing one token per row and the associated review ID was created. The two dataframes were then merged, matching “tokens” with the corresponding word in the LabMT dictionary and attaching the associated happiness score. However, not all tokens could be matched. Many reviews contain informal language, slang or abbreviations (for example, one review begins with “never ‘yelped’ b4” [review id: xlvN59kqb_89HViVW3tApg]). Rows that contained a token but had no happiness score were marked as OOV. Out of a total of 21180467 tokens, 15643779 tokens were not matched, for an overall OOV rate of ~0.7386.
-In the next step, a review-level summary was created. All tokens with the same review ID were grouped and summaries for each group computed. The summaries include:
-- the average happiness score of all matched tokens in a review, ignoring NaN values
-- how many tokens each review contains
-- how many of the tokens were matched to a word in the LabMT dataset
-- how many tokens were OOV
-- the proportion of OOV tokens in each review 
-The summary was then merged back onto the cleaned Yelp reviews sample, which contains the full review text, review metadata and business metadata. This was based on the shared column “review_id”. The final dataset was saved as a CSV file. Below is a table showing each column included in the final dataset, along with its Dtype and the number of NaN values in it.
-
-column name NaN Dtype
--review_id   0   str
-
--user_id 0   str
-
--business_id 0   str
-
--stars   0   float64
-
--text (review)   0   str
-
--date    0   str
-
--name (business) 0   str
-
--city    0   str
-
--state   0   str
-
--categories  15  str
-
--tokens  0   object
-
--hedonometer_score   15  float64
-
--total_tokens    13  float64
-
--matched_tokens  13  float64
-
--oov_tokens  13  float64
-
--oov_rate    13  float64
-
-The 13 missing values in the columns "total_tokens", "matched_tokens", "oov_tokens", and "oov_rate" are presumably the result of 13 reviews having no text that was recognized as such. During the tokenization process, it was specified that each token must consist of alphabetical letters. Thus, a review that only consists of an emoji would produce no tokens and contribute to the NaN values. Two reviews additionally contained tokens, but were entirely made up of either OOV words or words with a happiness score between 4 and 6. This explains the 15 NaN values in the column “hedonometer_score”. For 15 businesses, metadata on the categories they belong to was missing from the Yelp dataset, resulting in 15 NaN values for “categories”.
+### Happiness vs Stars
+![alt text](image-1.png) ![alt text](image-2.png)
+The boxplot shows a positive correlation between happiness score on the hedonometer and the star rating.
