@@ -1,111 +1,67 @@
 # ==========================================================
 # ANALYSIS FILE
-#
 # Purpose of this file:
-# This script takes the scored Yelp review dataset and runs
-# the core statistical analysis for the assignment.
-#
-# More specifically, it:
-# 1. checks the sample composition
-# 2. builds the final analytic sample
-# 3. creates a leave-one-out state average star variable
-# 4. estimates the main regression model
-# 5. bootstraps the coefficient on Yelp stars
-# 6. estimates separate models by state
-# 7. estimates separate models by business category
-#
+# 1. check the sample composition
+# 2. build the final analytic sample
+# 3. create a leave-one-out state average star variable to account for the state-level sentiment context
+# 4. estimate the main regression model
+# 5. bootstrap the coefficient on Yelp stars
+# 6. estimate separate models by state
+# 7. estimate separate models by business category
 # Main research idea:
 # We want to test whether higher Yelp star ratings are
 # associated with more positive language in the review text,
 # measured here with a hedonometer score.
-# ==========================================================
-
 # -----------------------------
 # Import required libraries
-# -----------------------------
+from pyexpat import model
+
 import pandas as pd
 import numpy as np
 import statsmodels.formula.api as smf
-
-
-# ==========================================================
-# HELPER FUNCTION: add_state_average
-#
-# Goal:
-# Create a leave-one-out state-level average of Yelp stars.
-#
-# Why do this?
-# If some states generally give higher or lower star ratings,
-# then part of the relationship between stars and review tone
-# might reflect state context rather than the review itself.
-#
+# Use helper function to add_state_average
+# Goal: Create a leave-one-out state-level average of Yelp stars.
+# Why do this? If some states have give higher or lower star ratings,then part of the relationship between stars and review tone might reflect state context rather than the review itself.
 # To adjust for this, we create a control variable:
 # "state_avg_stars"
 #
 # Important:
 # We use a leave-one-out average, meaning:
-# for each review, we compute the average star rating in that
-# state EXCLUDING that review's own star value.
-#
-# This prevents the control variable from mechanically
-# containing the outcome review itself.
-# ==========================================================
+# for each review, we compute the average star rating in that state but excluding  that review's own star value.
+#This prevents the control variable from mechanically containing the outcome review itself.
 def add_state_average(df):
-    # Make a copy so we do not accidentally change the
-    # original dataframe outside this function
+    # Make a copy so we do not accidentally change the original dataframe outside this function
     df = df.copy()
 
-    # For every row, calculate the total number of stars
-    # assigned across all reviews in the same state
+    # For every row, calculate the total number of stars assigned across all reviews in the same state
     state_sum = df.groupby("state")["stars"].transform("sum")
 
-    # For every row, calculate how many reviews exist
-    # in that same state
+    # For every row, calculate how many reviews exist in that same state
     state_count = df.groupby("state")["stars"].transform("count")
 
-    # Leave-one-out state average:
-    # subtract the current row's stars from the state total,
-    # and subtract 1 from the state count
-    #
-    # Formula:
-    # (sum of all stars in state - this row's stars)
-    # ---------------------------------------------
-    # (number of reviews in state - 1)
+    # Leave-one-out state average: subtract the current row's stars from the state total,and subtract 1 from the state count
+    # Formula: (sum of all stars in state - this row's stars) / (number of reviews in state - 1)
+ 
     df["state_avg_stars"] = (state_sum - df["stars"]) / (state_count - 1)
 
-    # If a state has only one review, then the denominator
-    # becomes zero and the leave-one-out mean is impossible
-    # to compute, so we set it to missing
+    # If a state has only one review, then the denominator  becomes zero and the leave-one-out mean is impossibleto compute, so we set it to missing
     df.loc[state_count <= 1, "state_avg_stars"] = np.nan
 
-    # Return the dataframe with the new variable added
     return df
 
 
-# ==========================================================
-# HELPER FUNCTION: bootstrap_stars
+# bootstrap_stars
 #
-# Goal:
-# Estimate a bootstrap distribution for the coefficient on
-# Yelp stars from the main regression model.
+# Goal: Estimate a bootstrap distribution for the coefficient on Yelp stars from the main regression model.
+# Why bootstrap? The bootstrap gives us an additional way to understand the uncertainty around the coefficient estimate.
 #
-# Why bootstrap?
-# The bootstrap gives us an additional way to understand the
-# uncertainty around the coefficient estimate.
-#
-# Why resample businesses rather than individual reviews?
-# Reviews from the same business are likely related to one
-# another, so treating them as fully independent would be
-# too optimistic. Resampling at the business level is more
-# appropriate for this structure.
-#
+# We use resampling at the business level because reviews from the same business are likely correlated, and we want to preserve that structure in the bootstrap samples.
 # Steps inside this function:
 # 1. identify all unique businesses
 # 2. repeatedly resample businesses with replacement
 # 3. rebuild a bootstrap dataset from those businesses
 # 4. re-estimate the regression each time
 # 5. save the coefficient on "stars"
-# ==========================================================
 def bootstrap_stars(df, B=10):
     print("\nStarting bootstrap...", flush=True)
 
@@ -114,14 +70,12 @@ def bootstrap_stars(df, B=10):
 
     # Pre-group the dataframe by business_id and store each
     # business's reviews in a dictionary.
-    #
     # This is much faster than repeatedly doing:
     # df[df["business_id"] == b]
     # inside the bootstrap loop.
     grouped = {b: g for b, g in df.groupby("business_id")}
 
-    # This list will store the coefficient on "stars"
-    # from each bootstrap replication
+    # This list will store the coefficient on "stars" from each bootstrap replication
     betas = []
 
     print(f"Number of unique businesses: {len(businesses)}", flush=True)
@@ -131,19 +85,14 @@ def bootstrap_stars(df, B=10):
     for i in range(B):
         print(f"Bootstrap {i + 1}/{B}...", flush=True)
 
-        # Randomly sample businesses WITH replacement
-        #
-        # "With replacement" means the same business can appear
-        # multiple times in one bootstrap sample, while some
-        # businesses may not appear at all in that sample
+        # Randomly sample businesses WITH replacement by replacement, we mean the same business can appear multiple times in one bootstrap sample, while some businesses may not appear at all in that sample
         sampled_businesses = np.random.choice(
             businesses,
             size=len(businesses),
             replace=True
         )
 
-        # Reconstruct the bootstrap dataframe by concatenating
-        # the review subsets for the sampled businesses
+        # Reconstruct the bootstrap dataframe by concatenating the review subsets for the sampled businesses
         parts = [grouped[b] for b in sampled_businesses]
         boot_df = pd.concat(parts, ignore_index=True)
 
@@ -168,7 +117,6 @@ def bootstrap_stars(df, B=10):
     return np.array(betas)
 
 
-# ==========================================================
 # MAIN FUNCTION: analyze_data
 #
 # Input:
@@ -178,24 +126,18 @@ def bootstrap_stars(df, B=10):
 # - business/location info
 # - hedonometer_score
 #
-# This function performs the full analysis and prints results
-# step by step.
-# ==========================================================
+# This function performs the full analysis and prints results to the terminal.
 def analyze_data(scored_df):
     print("\nStarting analysis...", flush=True)
 
-    # ======================================================
     # STEP 1: SAMPLE AUDIT
-    #
-    # Goal:
-    # Get a general overview of the dataset before filtering.
-    #
+    # Goal: Get a general overview of the dataset before filtering.
     # We check:
     # - total sample size
     # - distribution of star ratings
     # - number of states represented
     # - states with the most reviews
-    # ======================================================
+ 
     print("\n=== SAMPLE AUDIT ===", flush=True)
 
     # Total number of rows currently in the scored dataset
@@ -212,19 +154,16 @@ def analyze_data(scored_df):
     print("\nTop states:", flush=True)
     print(scored_df["state"].value_counts().head(), flush=True)
 
-    # ======================================================
+ 
     # STEP 2: BUILD THE ANALYTIC SAMPLE
-    #
-    # Goal:
-    # Keep only observations that contain the variables
-    # required for the main regression.
-    #
+    #Goal:
+    # Keep only observations that contain the variables required for the main regression.
     # These required variables are:
     # - hedonometer_score: dependent variable
     # - stars: main explanatory variable
     # - business_id: needed for clustering/bootstrap
     # - state: needed for the state-level control
-    # ======================================================
+
     required_cols = ["hedonometer_score", "stars", "business_id", "state"]
 
     # Drop rows with missing values in any of the required columns
@@ -296,10 +235,21 @@ def analyze_data(scored_df):
         cov_type="cluster",
         cov_kwds={"groups": analytic["business_id"]}
     )
-
     print("\n=== REGRESSION RESULTS ===", flush=True)
     print(model.summary(), flush=True)
 
+    # clean summary of the main effect
+    beta_stars = model.params["stars"]
+    se_stars = model.bse["stars"]
+    p_stars = model.pvalues["stars"]
+
+    print("\n=== KEY RESULT ===", flush=True)
+    print(f"Coefficient on stars: {beta_stars:.4f}", flush=True)
+    print(f"Standard error: {se_stars:.4f}", flush=True)
+    print(f"P-value: {p_stars:.4g}", flush=True)
+
+    
+    
     # ======================================================
     # STEP 6: BOOTSTRAP CONFIDENCE INTERVAL
     #
@@ -310,7 +260,7 @@ def analyze_data(scored_df):
     # We take the 2.5th and 97.5th percentiles of the bootstrap
     # distribution to form an approximate 95% confidence interval.
     # ======================================================
-    betas = bootstrap_stars(analytic, B=10)
+    betas = bootstrap_stars(analytic, B=500)
 
     print("\n=== BOOTSTRAP RESULTS ===", flush=True)
 
