@@ -13,3 +13,8 @@ __pycache__/
 
 # macOS system files
 .DS_Store
+
+data/raw/yelp_academic_dataset_review.json
+
+*.csv
+*.json
