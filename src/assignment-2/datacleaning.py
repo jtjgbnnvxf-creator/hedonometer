@@ -3,7 +3,7 @@ import json
 import os
 import random
 
-def clean_and_sample_yelp_lines(review_json_path, business_json_path, sample_size=200_000, output_csv_path="data/yelp_sample.csv.gz"):
+def clean_and_sample_yelp_lines(review_json_path, business_json_path, sample_size=200_000, output_csv_path="data/raw/yelp_sample.csv.gz"):
     """
     Reads Yelp review.json and business.json line by line to avoid memory errors.
     Cleans, samples, merges with business info, and saves compressed CSV.
