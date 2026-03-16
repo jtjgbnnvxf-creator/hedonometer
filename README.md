@@ -302,33 +302,6 @@ On the other hand, category-level comparison did not produce the same consistenc
 
 ---
 
-## Data 
-Data analyzed accounts for a random sample of 200.000 reviews. Each observation contains following fields: review metadata, star rating, business location, business category and review text. From the text of the review the hedonometer score was computed (see measurement.py). The goal was to estimate the emotional tone of the text using LabMT hapiness lexicon. 
-Overview of the data:
-
-### Sampling strategy
-The original Yelp dataset was extremely large, we analyzed a sample of 200.000. In order to create a managable data set, that would be possible to process, sampling was done on the cleaning stage (see datacleaning.py). The goal was to maintain statistical reliability while enabling computational efficiency. Nevertheless, no sampling is ever perfect and limitations have to be adressed. One of which is sampling variability, as it is only a part of large population, every sample takem from it can differ from each other. For transparency the bootstrap resampling was performed (see analysis.py), the estimates allow to see how results vary across different samples. Another limitation is risk of underrepresentation of certain fields inside of a taken sample, to mitigate this we use categories and states that have a certain number of observation (for category, threshold - 2000, for state, threshold - 1000). This increases reliability of regression estimates and crease variance to make comparison more meaningfull. Nevertheless, large and diverse sampling does not completely represent all Yelp reviews.
-
-Before conducting statistical analysis, we checked for the distribution of variables in the taken sample to check for diversity.
-{insert table with stars, states and categories!}
-
-## Statistics 
-To answer the research question, we used the following regression model:
-**hedonometer_score ~ stars + state_avg_stars**
-Stars represent the rating of the review, and the state average stars account for the avaergae star rating in the same state. The second variable was introduced to controll for the fact that rating culture may be inherit to the state.
-
-## Descriptives 
-The average hapiness score increases wihh each star. Showing a positive relationship between the rating an emotional tone. Though, it is important to outline that 1 star fron 5 stars is different in less than 1 point in the mean of hapiness score.
-
-## Findings 
-An increase in one star in a Yelp rating is associated with 0.194 increase in hedonometer score, controlling for the average rating level in the state. The finding is statistically significant.
-
-As mentioned above, the bootsrap was used for estimating uncertainty. We used it by business, as the same business may share the sentiment. Bootstrap confidence interval: 95% CI: [0.192, 0.195]. This confirms stability of the positive relationship between hapiness score and star rating.
-
-In additional to the main research question, we decided to review if this relationship varies across states and categories. The result of state-level comparison suggestb that the relationship between happiness and rating is consistent across states with a small variety in magnitude. 
-
-On the other hand, category-level comparison did not produce the same consistency, suggesting that the strength of the relationship varoies across industries.
-
 
 ## Visualization
 The visualization of the of our research question is split into two plots; a boxplot reviewing the correlation between the happiness score on the hedonometer and the star ratings to the businesses on Yelp, and a ...plot to review the mismatch between happiness and star ratings across different metropolitan regions. 
