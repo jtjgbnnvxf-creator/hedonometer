@@ -179,6 +179,7 @@ In the next step, a review-level summary was created. All tokens with the same r
 - how many tokens were OOV
 - the proportion of OOV tokens in each review 
 The summary was then merged back onto the cleaned Yelp reviews sample, which contains the full review text, review metadata and business metadata. This was based on the shared column “review_id”. The final dataset was saved as a CSV file. Below is a table showing each column included in the final dataset, along with its Dtype and the number of NaN values in it.
+
 column name NaN Dtype
 review_id   0   str
 user_id 0   str
@@ -196,4 +197,5 @@ total_tokens    13  float64
 matched_tokens  13  float64
 oov_tokens  13  float64
 oov_rate    13  float64
+
 The 13 missing values in the columns "total_tokens", "matched_tokens", "oov_tokens", and "oov_rate" are presumably the result of 13 reviews having no text that was recognized as such. During the tokenization process, it was specified that each token must consist of alphabetical letters. Thus, a review that only consists of an emoji would produce no tokens and contribute to the NaN values. Two reviews additionally contained tokens, but were entirely made up of either OOV words or words with a happiness score between 4 and 6. This explains the 15 NaN values in the column “hedonometer_score”. For 15 businesses, metadata on the categories they belong to was missing from the Yelp dataset, resulting in 15 NaN values for “categories”.
