@@ -3,17 +3,6 @@
 
 ---
 # 1 The dataset
-```mermaid
-flowchart TD
-    A[Raw Yelp Dataset] --> B[Data Cleaning] 
-    B --> C[Remove Duplicates]
-    B --> D[Remove Missing Reviews]
-    B --> E[Remove Empty Reviews]
-    C --> F[Clean Dataset]
-    D --> F
-    E --> F
-    F --> G[Analysis]
-```
 
 ```mermaid
 flowchart TD
@@ -25,7 +14,7 @@ flowchart TD
     E --> F[sample_df]
     F --> G[Save sample_df as compressed CSV]
     G --> H[Load LabMT dataset]
-    H --> I[Keep only essential columns, i.e. "word" and "happiness_score"]
+    H --> I[Keep only essential columns, i.e. word and happiness_score]
     H --> J[Remove stop words]
     I --> K[Final LabMT dataset]
     J --> K
