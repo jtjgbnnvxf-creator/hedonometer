@@ -15,6 +15,37 @@ flowchart TD
     F --> G[Analysis]
 ```
 
+```mermaid
+flowchart TD
+    A[Load Yelp reviews dataset] --> B[Keep only essential columns]
+    A --> C[Skip empty review rows]
+    B --> D[Total valid reviews]
+    C --> D
+    D --> E[Sample 50,000 reviews]
+    E --> F[sample_df]
+    F --> G[Save sample_df as compressed CSV]
+    G --> H[Load LabMT dataset]
+    H --> I[Keep only essential columns, i.e. "word" and "happiness_score"]
+    H --> J[Remove stop words]
+    I --> K[Final LabMT dataset]
+    J --> K
+    K --> L[Tokenize sampled and cleaned Yelp reviews]
+    L --> M[Create token_df with one row per token]
+    M --> N[Merge token_df with LabMT dataset]
+    N --> O[Mark unmatched tokens as OOV]
+    O --> P[Group tokens by review ID]
+    P --> Q[Aggregate happiness score of each token per review]
+    P --> R[determine total tokens, matched tokens and OOV tokens per review]
+    R --> S[Determine OOV rate per review]
+    S --> T[Review-level summary]
+    Q --> T
+    T --> U[Merge review-level summary with sample_df]
+    U --> V[scores_df: final processed dataset]
+    V --> W[Save scores_df as compressed CSV]
+    W --> X[Statistical analysis]
+```
+
+
 ## 1.1 Loading the dataset
 
 The dataset was loaded as a dataframe using the "pandas" library. The first three lines were skipped, as they contained comments rather than data. What remains are 10222 rows and eight columns. In four of these columns (twitter_rank, google_rank, nyt_rank and lyrics_rank) there are missing values (--). Missing values here mean that a word did not appear in a corpus, either at all or not at a frequency high enough to be given a rank.
