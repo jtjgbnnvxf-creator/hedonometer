@@ -20,7 +20,7 @@ flowchart TD
     K --> M[Final LabMT dataset]
     L --> M
     M --> N[Merge token_df with LabMT dataset]
-    H --> N
+    I --> N
     N --> O[Mark unmatched tokens as OOV]
     O --> P[Group tokens by review ID]
     P --> Q[Aggregate happiness score of each token per review]
