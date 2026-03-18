@@ -15,12 +15,12 @@ flowchart TD
     F --> G[Save sample_df as compressed CSV]
     G --> H[Tokenize sampled Yelp reviews]
     H --> I[Create token_df with one row per token]
-    I --> J[Load LabMT dataset]
-    J --> K[Keep only essential columns, i.e. word and happiness_score]
+    J[Load LabMT dataset] --> K[Keep only essential columns, i.e. word and happiness_score]
     J --> L[Remove stop words]
     K --> M[Final LabMT dataset]
     L --> M
     M --> N[Merge token_df with LabMT dataset]
+    H --> N
     N --> O[Mark unmatched tokens as OOV]
     O --> P[Group tokens by review ID]
     P --> Q[Aggregate happiness score of each token per review]
