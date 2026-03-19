@@ -3,7 +3,8 @@ import json
 import os
 import random
 
-def clean_and_sample_yelp_lines(review_json_path, business_json_path, sample_size=50_000, output_csv_path="data/processed/yelp_sample.csv.gz"):
+
+def clean_and_sample_yelp_lines(review_json_path, business_json_path, sample_size, output_csv_path="data/processed/yelp_sample.csv.gz"):
     """
     Reads Yelp review.json and business.json line by line to avoid memory errors.
     Cleans, samples, merges with business info, and saves compressed CSV.
@@ -56,11 +57,38 @@ def clean_and_sample_yelp_lines(review_json_path, business_json_path, sample_siz
 
     return sample_df
 
+def evaluate_sample_sizes(df, sample_sizes):
+
+    results = []
+
+    for size in sample_sizes:
+        sample = df.sample(n=min(size, len(df)), random_state=42)
+
+        # Basic metrics (you can expand later)
+        avg_stars = sample["stars"].mean()
+        std_stars = sample["stars"].std()
+        review_count = len(sample)
+
+        results.append({
+            "sample_size": size,
+            "avg_stars": avg_stars,
+            "std_stars": std_stars,
+            "num_reviews": review_count
+        })
+
+    return pd.DataFrame(results)
 
 if __name__ == "__main__":
-    clean_and_sample_yelp_lines(
+    df = clean_and_sample_yelp_lines(
         review_json_path="data/raw/yelp_academic_dataset_review.json",
         business_json_path="data/raw/yelp_academic_dataset_business.json",
-        sample_size=50_000,
+        sample_size=50_000,   # or whatever you want
         output_csv_path="data/processed/yelp_sample.csv.gz"
     )
+
+    sample_sizes = [1000, 3000, 10000, 25000, 30000, 50000, 100000, 200000]
+
+    results = evaluate_sample_sizes(df, sample_sizes)
+
+    print(results.sort_values("sample_size"))
+
