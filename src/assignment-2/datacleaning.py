@@ -45,6 +45,11 @@ def clean_and_sample_yelp_lines(review_json_path, business_json_path, sample_siz
     # Step 3: Merge with business info
     sample_df = sample_df.merge(business_df, on="business_id", how="left")
 
+    # Step 3a: Save combined dataset separately
+    combined_output_path = "data/processed/yelp_combined.csv.gz"
+    sample_df.to_csv(combined_output_path, index=False, compression="gzip")
+    print(f"Combined dataset saved: {combined_output_path}")
+
     # Step 4: Sort by stars and reset index
     sample_df = sample_df.sort_values(by="stars").reset_index(drop=True)
 
