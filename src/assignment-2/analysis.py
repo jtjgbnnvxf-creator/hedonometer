@@ -1,9 +1,12 @@
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy import stats
 
 DATA_PATH = "data/processed/yelp_hedonometer_scores.csv.gz"
+FIG_DIR = "figures"
+os.makedirs(FIG_DIR, exist_ok=True)
 
 df = pd.read_csv(DATA_PATH, compression="gzip")
 
@@ -210,7 +213,8 @@ ax.axvline(ci_high, linestyle="--", label="97.5%")
 ax.axvline(r, linestyle="-", label="Observed r")
 
 ax.legend()
-plt.show()
+plt.savefig(os.path.join(FIG_DIR, "bootstrap_correlation.png"), dpi=300, bbox_inches="tight")
+plt.close()
 
 
 # Scatter plot with fitted line
@@ -229,6 +233,25 @@ ax.grid(True, alpha=0.25)
 ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1), title=f"Pearson r = {r:.3f}")
 
 fig.tight_layout()
-plt.show()
+plt.savefig(os.path.join(FIG_DIR, "stars_vs_happiness.png"), dpi=300, bbox_inches="tight")
+plt.close()
 
+# Standardized regression plot (z-scores)
+xline_z = np.linspace(x_z.min(), x_z.max(), 200)
+yline_z = a_z + b_z * xline_z
+
+fig, ax = plt.subplots(figsize=(7,4.6))
+ax.scatter(x_z, y_z, s=18, alpha=0.4, label="Standardized reviews")
+ax.plot(xline_z, yline_z, linewidth=1.8, label="Standardized regression")
+
+ax.set_title("Standardized regression: stars vs hedonometer score")
+ax.set_xlabel("Star rating (z-score)")
+ax.set_ylabel("Hedonometer score (z-score)")
+ax.grid(True, alpha=0.25)
+
+ax.legend(title=f"b_z = {b_z:.3f}")
+
+fig.tight_layout()
+plt.savefig(os.path.join(FIG_DIR, "standardized_regression.png"), dpi=300, bbox_inches="tight")
+plt.close()
 print("\nAnalysis complete.")
