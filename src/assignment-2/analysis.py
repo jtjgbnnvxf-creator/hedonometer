@@ -1,437 +1,208 @@
-# ==========================================================
-# ANALYSIS FILE
-# Purpose of this file:
-# 1. check the sample composition
-# 2. build the final analytic sample
-# 3. create a leave-one-out state average star variable to account for the state-level sentiment context
-# 4. estimate the main regression model
-# 5. bootstrap the coefficient on Yelp stars
-# 6. estimate separate models by state
-# 7. estimate separate models by business category
-# Main research idea:
-# We want to test whether higher Yelp star ratings are
-# associated with more positive language in the review text,
-# measured here with a hedonometer score.
-# -----------------------------
-# Import required libraries
-from pyexpat import model
-
-import pandas as pd
 import numpy as np
-import statsmodels.formula.api as smf
-# Use helper function to add_state_average
-# Goal: Create a leave-one-out state-level average of Yelp stars.
-# Why do this? If some states have give higher or lower star ratings,then part of the relationship between stars and review tone might reflect state context rather than the review itself.
-# To adjust for this, we create a control variable:
-# "state_avg_stars"
-#
-# Important:
-# We use a leave-one-out average, meaning:
-# for each review, we compute the average star rating in that state but excluding  that review's own star value.
-#This prevents the control variable from mechanically containing the outcome review itself.
-def add_state_average(df):
-    # Make a copy so we do not accidentally change the original dataframe outside this function
-    df = df.copy()
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy import stats
 
-    # For every row, calculate the total number of stars assigned across all reviews in the same state
-    state_sum = df.groupby("state")["stars"].transform("sum")
+DATA_PATH = "data/processed/yelp_hedonometer_scores.csv.gz"
 
-    # For every row, calculate how many reviews exist in that same state
-    state_count = df.groupby("state")["stars"].transform("count")
+df = pd.read_csv(DATA_PATH, compression="gzip")
 
-    # Leave-one-out state average: subtract the current row's stars from the state total,and subtract 1 from the state count
-    # Formula: (sum of all stars in state - this row's stars) / (number of reviews in state - 1)
- 
-    df["state_avg_stars"] = (state_sum - df["stars"]) / (state_count - 1)
-
-    # If a state has only one review, then the denominator  becomes zero and the leave-one-out mean is impossibleto compute, so we set it to missing
-    df.loc[state_count <= 1, "state_avg_stars"] = np.nan
-
-    return df
+print("\n=== SAMPLE AUDIT ===")
+print(f"Raw sample size: {len(df)}")
 
 
-# bootstrap_stars
-#
-# Goal: Estimate a bootstrap distribution for the coefficient on Yelp stars from the main regression model.
-# Why bootstrap? The bootstrap gives us an additional way to understand the uncertainty around the coefficient estimate.
-#
-# We use resampling at the business level because reviews from the same business are likely correlated, and we want to preserve that structure in the bootstrap samples.
-# Steps inside this function:
-# 1. identify all unique businesses
-# 2. repeatedly resample businesses with replacement
-# 3. rebuild a bootstrap dataset from those businesses
-# 4. re-estimate the regression each time
-# 5. save the coefficient on "stars"
-def bootstrap_stars(df, B=10):
-    print("\nStarting bootstrap...", flush=True)
 
-    # Extract unique business IDs from the analytic sample
-    businesses = df["business_id"].unique()
+# Summary statistics: stars
 
-    # Pre-group the dataframe by business_id and store each
-    # business's reviews in a dictionary.
-    # This is much faster than repeatedly doing:
-    # df[df["business_id"] == b]
-    # inside the bootstrap loop.
-    grouped = {b: g for b, g in df.groupby("business_id")}
+x_stars = df["stars"].dropna().to_numpy()
+print("\n=== SUMMARY STATISTICS: STARS ===")
+print(f"n = {len(x_stars)}")
+print(f"min = {np.min(x_stars):.3f}")
+print(f"max = {np.max(x_stars):.3f}")
+print(f"range = {(np.max(x_stars) - np.min(x_stars)):.3f}")
+print(f"mean = {np.mean(x_stars):.3f}")
+print(f"median = {np.median(x_stars):.3f}")
 
-    # This list will store the coefficient on "stars" from each bootstrap replication
-    betas = []
+#Here we describe the shape of the distribution of star ratings using quantiles (equal sized parts) 
+#to avoid assuming normal distribution, we also report the IQR (inter-quartile range) as a measure of spread that is robust to outliers.
+#IQR is the difference between the 75th percentile (Q3) and the 25th percentile (Q1)
+#gives us an idea of the range of the middle 50% of the data. 
+#(takes out outliers or extreme values that could skew the mean and standard deviation)
 
-    print(f"Number of unique businesses: {len(businesses)}", flush=True)
-    print(f"Bootstrap repetitions: {B}", flush=True)
+qs = np.quantile(x_stars, [0.10, 0.25, 0.50, 0.75, 0.90])
+print(f"q10 = {qs[0]:.3f}")
+print(f"q25 = {qs[1]:.3f}")
+print(f"q50 = {qs[2]:.3f}")
+print(f"q75 = {qs[3]:.3f}")
+print(f"q90 = {qs[4]:.3f}")
+print(f"IQR = {(qs[3] - qs[1]):.3f}")
+print(f"sample variance = {np.var(x_stars, ddof=1):.3f}")
+print(f"sample SD = {np.std(x_stars, ddof=1):.3f}")
 
-    # Repeat the bootstrap procedure B times
-    for i in range(B):
-        print(f"Bootstrap {i + 1}/{B}...", flush=True)
+#MAD (median absolute deviation) is a measure of variability that is less sensitive to outliers (extremes)
+# than the standard deviation.
+mad_stars = np.median(np.abs(x_stars - np.median(x_stars)))
+print(f"MAD = {mad_stars:.3f}")
 
-        # Randomly sample businesses WITH replacement by replacement, we mean the same business can appear multiple times in one bootstrap sample, while some businesses may not appear at all in that sample
-        sampled_businesses = np.random.choice(
-            businesses,
-            size=len(businesses),
-            replace=True
-        )
-
-        # Reconstruct the bootstrap dataframe by concatenating the review subsets for the sampled businesses
-        parts = [grouped[b] for b in sampled_businesses]
-        boot_df = pd.concat(parts, ignore_index=True)
-
-        try:
-            # Fit the same regression model used in the main analysis
-            m = smf.ols(
-                "hedonometer_score ~ stars + state_avg_stars",
-                data=boot_df
-            ).fit()
-
-            # Save the coefficient on Yelp star rating
-            betas.append(m.params["stars"])
-
-        except Exception as e:
-            # If a bootstrap draw fails for any reason, report it
-            # and continue with the next replication
-            print(f"Bootstrap {i + 1} failed: {e}", flush=True)
-
-    print("Bootstrap complete.", flush=True)
-
-    # Convert the list into a numpy array for easier quantile calculation
-    return np.array(betas)
+#Skewness  measures the assymetry of the distribution. More far from 0 means longer tail on one side
+print(f"skewness = {stats.skew(x_stars, bias=False):.3f}")
+#Kurtosis measures how havey the tailes are:
+# 0 - normal distribution, positive - heavy tails (more outliers), negative - light tails(less outliers)
+print(f"excess kurtosis = {stats.kurtosis(x_stars, fisher=True, bias=False):.3f}")
 
 
-# MAIN FUNCTION: analyze_data
-#
-# Input:
-# scored_df = dataframe that already contains:
-# - Yelp star ratings
-# - review text
-# - business/location info
-# - hedonometer_score
-#
-# This function performs the full analysis and prints results to the terminal.
-def analyze_data(scored_df):
-    print("\nStarting analysis...", flush=True)
+# Summary statistics: hedonometer score
+x_happy = df["hedonometer_score"].dropna().to_numpy()
 
-    # STEP 1: SAMPLE AUDIT
-    # Goal: Get a general overview of the dataset before filtering.
-    # We check:
-    # - total sample size
-    # - distribution of star ratings
-    # - number of states represented
-    # - states with the most reviews
- 
-    print("\n=== SAMPLE AUDIT ===", flush=True)
+print("\n=== SUMMARY STATISTICS: HEDONOMETER SCORE ===")
+print(f"n = {len(x_happy)}")
+print(f"min = {np.min(x_happy):.3f}")
+print(f"max = {np.max(x_happy):.3f}")
+print(f"range = {(np.max(x_happy) - np.min(x_happy)):.3f}")
+print(f"mean = {np.mean(x_happy):.3f}")
+print(f"median = {np.median(x_happy):.3f}")
 
-    # Total number of rows currently in the scored dataset
-    print("Sample size:", len(scored_df), flush=True)
+qs = np.quantile(x_happy, [0.10, 0.25, 0.50, 0.75, 0.90])
+print(f"q10 = {qs[0]:.3f}")
+print(f"q25 = {qs[1]:.3f}")
+print(f"q50 = {qs[2]:.3f}")
+print(f"q75 = {qs[3]:.3f}")
+print(f"q90 = {qs[4]:.3f}")
+print(f"IQR = {(qs[3] - qs[1]):.3f}")
+print(f"sample variance = {np.var(x_happy, ddof=1):.3f}")
+print(f"sample SD = {np.std(x_happy, ddof=1):.3f}")
 
-    # Proportion of reviews in each star category
-    print("\nStar rating distribution:", flush=True)
-    print(scored_df["stars"].value_counts(normalize=True).sort_index(), flush=True)
+mad_happy = np.median(np.abs(x_happy - np.median(x_happy)))
+print(f"MAD = {mad_happy:.3f}")
+print(f"skewness = {stats.skew(x_happy, bias=False):.3f}")
+print(f"excess kurtosis = {stats.kurtosis(x_happy, fisher=True, bias=False):.3f}")
 
-    # Count how many unique states appear in the dataset
-    print("\nStates in sample:", scored_df["state"].nunique(), flush=True)
+# Happiness by star rating
+#Here we check the average happiness score for each star rating to see if there is a relationship between them.
+#The output will show us if higher star ratings tend to have higher happiness scores, 
+# which would suggest that the hedonometer is capturing something meaningful about the reviews.
+descriptives = df.groupby("stars")["hedonometer_score"].agg(
+    mean="mean",
+    median="median",
+    count="count",
+    std="std"
+)
 
-    # Show the states with the largest number of reviews
-    print("\nTop states:", flush=True)
-    print(scored_df["state"].value_counts().head(), flush=True)
+print("\n=== HAPPINESS BY STAR RATING ===")
+print(descriptives)
 
- 
-    # STEP 2: BUILD THE ANALYTIC SAMPLE
-    #Goal:
-    # Keep only observations that contain the variables required for the main regression.
-    # These required variables are:
-    # - hedonometer_score: dependent variable
-    # - stars: main explanatory variable
-    # - business_id: needed for clustering/bootstrap
-    # - state: needed for the state-level control
+# Main association: covariance and Pearson correlation
 
-    required_cols = ["hedonometer_score", "stars", "business_id", "state"]
+x = pd.to_numeric(df["stars"], errors="coerce")
+y = pd.to_numeric(df["hedonometer_score"], errors="coerce")
 
-    # Drop rows with missing values in any of the required columns
-    analytic = scored_df.dropna(subset=required_cols).copy()
+xy = pd.concat([x, y], axis=1).dropna()
+xy.columns = ["stars", "hedonometer_score"]
 
-    print("\n=== ANALYTIC SAMPLE ===", flush=True)
-    print("Rows after filtering:", len(analytic), flush=True)
-    print("Businesses:", analytic["business_id"].nunique(), flush=True)
+x = xy["stars"].to_numpy()
+y = xy["hedonometer_score"].to_numpy()
 
-    # ======================================================
-    # STEP 3: ADD STATE-LEVEL CONTROL VARIABLE
-    #
-    # Goal:
-    # Create the leave-one-out state average of stars and
-    # add it to the analytic dataset.
-    #
-    # Then drop rows where this value could not be computed.
-    # ======================================================
-    print("\nAdding state average variable...", flush=True)
+cov_xy = np.cov(x, y, ddof=1)[0, 1]
+r = np.corrcoef(x, y)[0, 1]
+r_test = stats.pearsonr(x, y)
 
-    analytic = add_state_average(analytic)
+print("\n=== ASSOCIATION BETWEEN STARS AND HAPPINESS ===")
+print(f"Sample covariance(stars, hedonometer_score) = {cov_xy:.4f}")
+print(f"Pearson correlation r = {r:.4f}")
 
-    # Drop rows where the state average is missing
-    analytic = analytic.dropna(subset=["state_avg_stars"])
+# Bootstrap AFTER correlation
+# We will use a bootstrap procedure to estimate the sampling distribution of the Pearson correlation coefficient (r) 
+# between star ratings and hedonometer scores.
+print("\n=== BOOTSTRAP RESULTS ===")
 
-    print("State average star rating added.", flush=True)
-    print("Rows after dropping invalid state averages:", len(analytic), flush=True)
+rng = np.random.default_rng(42)
+businesses = df["business_id"].dropna().unique()
+grouped = {b: g for b, g in df.groupby("business_id")}
 
-    # ======================================================
-    # STEP 4: DESCRIPTIVE STATISTICS
-    #
-    # Goal:
-    # Before running the regression, look at the simple,
-    # raw relationship between Yelp stars and hedonometer score.
-    #
-    # For each star level, calculate:
-    # - mean hedonometer score
-    # - number of reviews
-    # - standard deviation
-    # ======================================================
-    descriptives = analytic.groupby("stars")["hedonometer_score"].agg(
-        ["mean", "count", "std"]
+r_boot = []
+B = 250
+# We chose 250 times, for a balance between accuracy and computational time 
+# as our sample ios large
+for i in range(B):
+    sampled_businesses = rng.choice(
+        businesses,
+        size=len(businesses),
+        replace=True
     )
 
-    print("\n=== MEAN HAPPINESS BY STAR RATING ===", flush=True)
-    print(descriptives, flush=True)
+    boot_parts = [grouped[b] for b in sampled_businesses]
+    boot_df = pd.concat(boot_parts, ignore_index=True)
 
-    # ======================================================
-    # STEP 5: MAIN REGRESSION
-    #
-    # Model:
-    # hedonometer_score ~ stars + state_avg_stars
-    #
-    # Interpretation:
-    # - "stars" tells us how much the hedonometer score changes
-    #   when the Yelp rating increases by one star
-    # - "state_avg_stars" controls for broader rating tendencies
-    #   in the state
-    #
-    # We cluster standard errors by business_id because reviews
-    # from the same business are likely correlated.
-    # ======================================================
-    print("\nFitting regression model...", flush=True)
+    x_b = pd.to_numeric(boot_df["stars"], errors="coerce")
+    y_b = pd.to_numeric(boot_df["hedonometer_score"], errors="coerce")
 
-    model = smf.ols(
-        "hedonometer_score ~ stars + state_avg_stars",
-        data=analytic
-    ).fit(
-        cov_type="cluster",
-        cov_kwds={"groups": analytic["business_id"]}
-    )
-    print("\n=== REGRESSION RESULTS ===", flush=True)
-    print(model.summary(), flush=True)
+    xy_b = pd.concat([x_b, y_b], axis=1).dropna()
+    xy_b.columns = ["stars", "hedonometer_score"]
 
-    # clean summary of the main effect
-    beta_stars = model.params["stars"]
-    se_stars = model.bse["stars"]
-    p_stars = model.pvalues["stars"]
+    x_b = xy_b["stars"].to_numpy()
+    y_b = xy_b["hedonometer_score"].to_numpy()
 
-    print("\n=== KEY RESULT ===", flush=True)
-    print(f"Coefficient on stars: {beta_stars:.4f}", flush=True)
-    print(f"Standard error: {se_stars:.4f}", flush=True)
-    print(f"P-value: {p_stars:.4g}", flush=True)
+    if len(np.unique(x_b)) < 2 or len(np.unique(y_b)) < 2:
+        continue
 
-    
-    
-    # ======================================================
-    # STEP 6: BOOTSTRAP CONFIDENCE INTERVAL
-    #
-    # Goal:
-    # Use repeated business-level resampling to estimate a
-    # bootstrap confidence interval for the coefficient on stars.
-    #
-    # We take the 2.5th and 97.5th percentiles of the bootstrap
-    # distribution to form an approximate 95% confidence interval.
-    # ======================================================
-    betas = bootstrap_stars(analytic, B=500)
+    r_b = np.corrcoef(x_b, y_b)[0, 1]
+    if np.isfinite(r_b):
+        r_boot.append(r_b)
 
-    print("\n=== BOOTSTRAP RESULTS ===", flush=True)
+r_boot = np.array(r_boot)
 
-    if len(betas) > 0:
-        ci_low = np.quantile(betas, 0.025)
-        ci_high = np.quantile(betas, 0.975)
-        print("95% CI:", ci_low, ci_high, flush=True)
-    else:
-        print("No valid bootstrap estimates were produced.", flush=True)
+if len(r_boot) > 0:
+    ci_low = np.quantile(r_boot, 0.025)
+    ci_high = np.quantile(r_boot, 0.975)
+    boot_mean = np.mean(r_boot)
+    boot_se = np.std(r_boot, ddof=1)
 
-    # ======================================================
-    # STEP 7: INTERPRETATION OF MAIN EFFECT
-    #
-    # Goal:
-    # Print a human-readable interpretation of the coefficient
-    # on Yelp stars from the main regression.
-    # ======================================================
-    beta = model.params["stars"]
+    print(f"Bootstrap mean r = {boot_mean:.4f}")
+    print(f"Bootstrap SE = {boot_se:.4f}")
+    print(f"95% bootstrap CI = [{ci_low:.4f}, {ci_high:.4f}]")
+else:
+    print("No valid bootstrap estimates were produced.")
+#Here we are checking the distribution of the bootstrap estimates of the Pearson r
+# to see if it is approximately normal and to visualize the variability in the estimate of r.
+    print("\n=== BOOTSTRAP DISTRIBUTION ===")
 
-    print("\n=== INTERPRETATION ===", flush=True)
-    print(
-        f"A one-star increase in Yelp rating is associated with "
-        f"{beta:.3f} increase in hedonometer score, "
-        f"controlling for the average star rating in the state.",
-        flush=True
-    )
+fig, ax = plt.subplots(figsize=(7,4))
 
-    # ======================================================
-    # STEP 8: STATE-LEVEL DIFFERENCES
-    #
-    # Goal:
-    # Estimate whether the stars-to-language relationship looks
-    # different across states.
-    #
-    # Important modeling note:
-    # In these within-state models, we DO NOT include
-    # state_avg_stars, because inside one state it becomes almost
-    # a linear function of stars and causes instability.
-    #
-    # So the state-level model is simply:
-    # hedonometer_score ~ stars
-    #
-    # To avoid very unstable estimates, we only keep states with
-    # at least 1000 reviews.
-    # ======================================================
-    print("\n=== STATE-LEVEL EFFECTS ===", flush=True)
+ax.hist(r_boot, bins=30)
 
-    state_results = []
-    skipped_states = 0
+ax.set_title("Bootstrap distribution of Pearson correlation")
+ax.set_xlabel("Bootstrap Pearson r")
+ax.set_ylabel("Frequency")
 
-    for state, group in analytic.groupby("state"):
-        # Skip states that do not have enough observations
-        if len(group) < 1000:
-            skipped_states += 1
-            continue
+# confidence interval lines
+ci_low = np.quantile(r_boot, 0.025)
+ci_high = np.quantile(r_boot, 0.975)
 
-        print(f"Processing state: {state} (n={len(group)})", flush=True)
+ax.axvline(ci_low, linestyle="--", label="2.5%")
+ax.axvline(ci_high, linestyle="--", label="97.5%")
 
-        try:
-            # Run a within-state regression
-            m = smf.ols(
-                "hedonometer_score ~ stars",
-                data=group
-            ).fit()
+# original r
+ax.axvline(r, linestyle="-", label="Observed r")
 
-            # Store the state name, coefficient, and sample size
-            state_results.append({
-                "state": state,
-                "beta_stars": m.params["stars"],
-                "n_reviews": len(group)
-            })
+ax.legend()
+plt.show()
 
-        except Exception as e:
-            print(f"State model failed for {state}: {e}", flush=True)
+# Scatter plot with fitted line
+b, a = np.polyfit(x, y, 1)
+xline = np.linspace(x.min(), x.max(), 200)
+yline = a + b * xline
 
-    # Turn results into a dataframe
-    state_results = pd.DataFrame(state_results)
+fig, ax = plt.subplots(figsize=(7.6, 4.6))
+ax.scatter(x, y, s=18, alpha=0.4, label="Reviews")
+ax.plot(xline, yline, linewidth=1.5, label="Least-squares line")
 
-    if not state_results.empty:
-        # Sort from largest estimated effect to smallest
-        state_results = state_results.sort_values("beta_stars", ascending=False)
-        print(state_results, flush=True)
-    else:
-        print("No state-level results available.", flush=True)
+ax.set_title("Yelp stars vs hedonometer score")
+ax.set_xlabel("Yelp star rating")
+ax.set_ylabel("Hedonometer score")
+ax.grid(True, alpha=0.25)
+ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1), title=f"Pearson r = {r:.3f}")
 
-    print(f"Skipped states with too few observations: {skipped_states}", flush=True)
+fig.tight_layout()
+plt.show()
 
-    # ======================================================
-    # STEP 9: CATEGORY-LEVEL DIFFERENCES
-    #
-    # Goal:
-    # Estimate whether the stars-to-language relationship differs
-    # across business categories.
-    #
-    # The raw Yelp column is called "categories" and usually
-    # contains a comma-separated list such as:
-    # "Restaurants, Mexican, Bars"
-    #
-    # For simplicity, we use only the FIRST listed category and
-    # call it "main_category".
-    #
-    # We then run the model separately within each category.
-    #
-    # To avoid noisy estimates and huge terminal spam:
-    # - first count category sizes
-    # - keep only categories with at least 2000 reviews
-    # - process only those categories
-    # ======================================================
-    print("\n=== CATEGORY EFFECTS ===", flush=True)
-
-    # Create a simplified category variable from the first listed category
-    analytic["main_category"] = (
-        analytic["categories"]
-        .fillna("Unknown")   # replace missing category strings
-        .astype(str)         # ensure values are strings
-        .str.split(",")      # split comma-separated categories
-        .str[0]              # keep only the first category
-        .str.strip()         # remove extra whitespace
-    )
-
-    # Count how many reviews belong to each main category
-    cat_counts = analytic["main_category"].value_counts()
-
-    # Keep only categories with 2000 or more reviews
-    kept_categories = cat_counts[cat_counts >= 2000].index
-
-    print(f"Categories meeting threshold: {len(kept_categories)}", flush=True)
-    print(
-        f"Skipped categories with too few observations: {(cat_counts < 2000).sum()}",
-        flush=True
-    )
-
-    cat_results = []
-
-    for cat in kept_categories:
-        # Subset the data to just one category
-        group = analytic[analytic["main_category"] == cat]
-
-        print(f"Processing category: {cat} (n={len(group)})", flush=True)
-
-        try:
-            # Run the category-specific regression
-            #
-            # Here we still include state_avg_stars because within
-            # a category there are still multiple states represented
-            m = smf.ols(
-                "hedonometer_score ~ stars + state_avg_stars",
-                data=group
-            ).fit()
-
-            # Save the category result
-            cat_results.append({
-                "category": cat,
-                "beta_stars": m.params["stars"],
-                "n_reviews": len(group)
-            })
-
-        except Exception as e:
-            print(f"Category model failed for {cat}: {e}", flush=True)
-
-    # Convert to dataframe
-    cat_results = pd.DataFrame(cat_results)
-
-    if not cat_results.empty:
-        # Sort from strongest estimated effect to weakest
-        cat_results = cat_results.sort_values("beta_stars", ascending=False)
-
-        # Print only top 15 for readability
-        print(cat_results.head(15), flush=True)
-    else:
-        print("No category-level results available.", flush=True)
-
-    # Final message so it is obvious the analysis really finished
-    print("\nAnalysis complete.", flush=True)
+print("\nAnalysis complete.")
