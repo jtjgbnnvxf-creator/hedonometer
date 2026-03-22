@@ -110,6 +110,30 @@ print("\n=== ASSOCIATION BETWEEN STARS AND HAPPINESS ===")
 print(f"Sample covariance(stars, hedonometer_score) = {cov_xy:.4f}")
 print(f"Pearson correlation r = {r:.4f}")
 
+#Z-score: implementing the standardized effect size (z-score) 
+#for the relationship between star ratings and hedonometer scores.
+print("\n=== STANDARDIZED EFFECT (Z-SCORES) ===")
+
+# standardize both variables
+x_z = (x - np.mean(x)) / np.std(x, ddof=1)
+y_z = (y - np.mean(y)) / np.std(y, ddof=1)
+
+# fit line to z-scores: to check how many standard deviations of increase in hedonometer score (y)
+# we get for each standard deviation increase in star rating (x). 
+# the slope of the line will be the standardized effect size (b_z),
+# and the intercept (a_z) should be close to 0 if both variables are standardized.
+b_z, a_z = np.polyfit(x_z, y_z, 1)
+
+print(f"Standardized slope (b_z) = {b_z:.4f}")
+print(f"Standardized intercept (a_z) = {a_z:.4f}")
+
+print(
+    f"A 1 SD increase in star rating is associated with "
+    f"a {b_z:.3f} SD increase in hedonometer score."
+)
+
+print(f"(This should match Pearson r ≈ {r:.4f})")
+
 # Bootstrap AFTER correlation
 # We will use a bootstrap procedure to estimate the sampling distribution of the Pearson correlation coefficient (r) 
 # between star ratings and hedonometer scores.
@@ -162,6 +186,7 @@ if len(r_boot) > 0:
     print(f"95% bootstrap CI = [{ci_low:.4f}, {ci_high:.4f}]")
 else:
     print("No valid bootstrap estimates were produced.")
+
 #Here we are checking the distribution of the bootstrap estimates of the Pearson r
 # to see if it is approximately normal and to visualize the variability in the estimate of r.
     print("\n=== BOOTSTRAP DISTRIBUTION ===")
@@ -186,6 +211,7 @@ ax.axvline(r, linestyle="-", label="Observed r")
 
 ax.legend()
 plt.show()
+
 
 # Scatter plot with fitted line
 b, a = np.polyfit(x, y, 1)
