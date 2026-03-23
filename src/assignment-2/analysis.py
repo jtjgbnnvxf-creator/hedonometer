@@ -95,22 +95,21 @@ print("\n=== HAPPINESS BY STAR RATING ===")
 print(descriptives)
 
 # Main association: covariance and Pearson correlation
-
-x = pd.to_numeric(df["stars"], errors="coerce")
-y = pd.to_numeric(df["hedonometer_score"], errors="coerce")
+x = pd.to_numeric(df["hedonometer_score"], errors="coerce")
+y = pd.to_numeric(df["stars"], errors="coerce")
 
 xy = pd.concat([x, y], axis=1).dropna()
-xy.columns = ["stars", "hedonometer_score"]
+xy.columns = ["hedonometer_score", "stars"]
 
-x = xy["stars"].to_numpy()
-y = xy["hedonometer_score"].to_numpy()
+x = xy["hedonometer_score"].to_numpy()
+y = xy["stars"].to_numpy()
 
 cov_xy = np.cov(x, y, ddof=1)[0, 1]
 r = np.corrcoef(x, y)[0, 1]
 r_test = stats.pearsonr(x, y)
 
-print("\n=== ASSOCIATION BETWEEN STARS AND HAPPINESS ===")
-print(f"Sample covariance(stars, hedonometer_score) = {cov_xy:.4f}")
+print("\n=== ASSOCIATION BETWEEN HEDONOMETER SCORE AND STAR RATING ===")
+print(f"Sample covariance(hedonometer_score, stars) = {cov_xy:.4f}")
 print(f"Pearson correlation r = {r:.4f}")
 
 #Z-score: implementing the standardized effect size (z-score) 
@@ -118,8 +117,22 @@ print(f"Pearson correlation r = {r:.4f}")
 print("\n=== STANDARDIZED EFFECT (Z-SCORES) ===")
 
 # standardize both variables
-x_z = (x - np.mean(x)) / np.std(x, ddof=1)
-y_z = (y - np.mean(y)) / np.std(y, ddof=1)
+x_z = (x - np.mean(x)) / np.std(x, ddof=1)   # hedonometer score
+y_z = (y - np.mean(y)) / np.std(y, ddof=1)   # star rating
+
+# fit line to z-scores: to check how many standard deviations of increase in star rating (y)
+# we get for each standard deviation increase in hedonometer score (x).
+# the slope of the line will be the standardized effect size (b_z),
+# and the intercept (a_z) should be close to 0 if both variables are standardized.
+b_z, a_z = np.polyfit(x_z, y_z, 1)
+
+# R-squared from standardized regression
+r_squared = b_z**2
+
+print(f"Standardized slope (b_z) = {b_z:.4f}")
+print(f"Standardized intercept (a_z) = {a_z:.4f}")
+print(f"R-squared = {r_squared:.4f}")
+print(f"Variance explained = {r_squared*100:.2f}%")
 
 # fit line to z-scores: to check how many standard deviations of increase in hedonometer score (y)
 # we get for each standard deviation increase in star rating (x). 
@@ -131,8 +144,8 @@ print(f"Standardized slope (b_z) = {b_z:.4f}")
 print(f"Standardized intercept (a_z) = {a_z:.4f}")
 
 print(
-    f"A 1 SD increase in star rating is associated with "
-    f"a {b_z:.3f} SD increase in hedonometer score."
+    f"A 1 SD increase in hedonometer score is associated with "
+    f"a {b_z:.3f} SD increase in star rating."
 )
 
 print(f"(This should match Pearson r ≈ {r:.4f})")
