@@ -134,21 +134,49 @@ print(f"Standardized intercept (a_z) = {a_z:.4f}")
 print(f"R-squared = {r_squared:.4f}")
 print(f"Variance explained = {r_squared*100:.2f}%")
 
-# fit line to z-scores: to check how many standard deviations of increase in hedonometer score (y)
-# we get for each standard deviation increase in star rating (x). 
-# the slope of the line will be the standardized effect size (b_z),
-# and the intercept (a_z) should be close to 0 if both variables are standardized.
-b_z, a_z = np.polyfit(x_z, y_z, 1)
-
-print(f"Standardized slope (b_z) = {b_z:.4f}")
-print(f"Standardized intercept (a_z) = {a_z:.4f}")
-
 print(
     f"A 1 SD increase in hedonometer score is associated with "
     f"a {b_z:.3f} SD increase in star rating."
 )
 
 print(f"(This should match Pearson r ≈ {r:.4f})")
+
+print("\n=== Z-SCORE COMPARISON BETWEEN RATINGS AND SENTIMENT ===")
+
+xy["x_z"] = (xy.iloc[:, 0] - xy.iloc[:, 0].mean()) / xy.iloc[:, 0].std(ddof=1)
+xy["y_z"] = (xy.iloc[:, 1] - xy.iloc[:, 1].mean()) / xy.iloc[:, 1].std(ddof=1)
+
+# Positive gap means the first variable is more positive relative to its own distribution
+# Negative gap means the second variable is more positive relative to its own distribution
+xy["z_gap"] = xy["x_z"] - xy["y_z"]
+
+print(f"Mean z-gap = {xy['z_gap'].mean():.4f}")
+print(f"Median z-gap = {xy['z_gap'].median():.4f}")
+print(f"SD of z-gap = {xy['z_gap'].std(ddof=1):.4f}")
+
+z_by_group = xy.groupby("stars")[["x_z", "y_z", "z_gap"]].agg(
+    mean_x_z=("x_z", "mean"),
+    mean_y_z=("y_z", "mean"),
+    mean_z_gap=("z_gap", "mean"),
+    median_z_gap=("z_gap", "median"),
+    count=("z_gap", "count")
+)
+
+print("\n=== Z-SCORE GAP BY STAR RATING ===")
+print(z_by_group)
+
+fig, ax = plt.subplots(figsize=(7, 4.6))
+ax.plot(z_by_group.index, z_by_group["mean_z_gap"], marker="o")
+ax.axhline(0, linestyle="--")
+
+ax.set_title("Average standardized gap by star rating")
+ax.set_xlabel("Yelp star rating")
+ax.set_ylabel("Mean z-gap")
+ax.grid(True, alpha=0.25)
+
+fig.tight_layout()
+plt.savefig(os.path.join(FIG_DIR, "z_gap_by_star_rating.png"), dpi=300, bbox_inches="tight")
+plt.close()
 
 # Bootstrap AFTER correlation
 # We will use a bootstrap procedure to estimate the sampling distribution of the Pearson correlation coefficient (r) 
@@ -205,7 +233,7 @@ else:
 
 #Here we are checking the distribution of the bootstrap estimates of the Pearson r
 # to see if it is approximately normal and to visualize the variability in the estimate of r.
-    print("\n=== BOOTSTRAP DISTRIBUTION ===")
+print("\n=== BOOTSTRAP DISTRIBUTION ===")
 
 fig, ax = plt.subplots(figsize=(7,4))
 
