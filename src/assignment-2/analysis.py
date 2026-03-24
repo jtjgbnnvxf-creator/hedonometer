@@ -141,6 +141,7 @@ print(
 
 print(f"(This should match Pearson r ≈ {r:.4f})")
 
+# Z-SCORE COMPARISON 
 print("\n=== Z-SCORE COMPARISON BETWEEN RATINGS AND SENTIMENT ===")
 
 xy["x_z"] = (xy.iloc[:, 0] - xy.iloc[:, 0].mean()) / xy.iloc[:, 0].std(ddof=1)
@@ -177,6 +178,13 @@ ax.grid(True, alpha=0.25)
 fig.tight_layout()
 plt.savefig(os.path.join(FIG_DIR, "z_gap_by_star_rating.png"), dpi=300, bbox_inches="tight")
 plt.close()
+
+# How many tokens does the average review have? relevant for labMT accuracy
+df["token_count"] = df["text"].dropna().apply(lambda x: len(x.split()))
+print("Average tokens per review:", df["token_count"].mean())
+print("Median tokens per review:", df["token_count"].median())
+print("SD tokens per review:", df["token_count"].std())
+print("Average tokens per review by star rating:", df.groupby("stars")["token_count"].mean())
 
 # Bootstrap AFTER correlation
 # We will use a bootstrap procedure to estimate the sampling distribution of the Pearson correlation coefficient (r) 
