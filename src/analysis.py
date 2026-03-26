@@ -106,7 +106,6 @@ y = xy["stars"].to_numpy()
 
 cov_xy = np.cov(x, y, ddof=1)[0, 1]
 r = np.corrcoef(x, y)[0, 1]
-r_test = stats.pearsonr(x, y)
 
 print("\n=== ASSOCIATION BETWEEN HEDONOMETER SCORE AND STAR RATING ===")
 print(f"Sample covariance(hedonometer_score, stars) = {cov_xy:.4f}")
@@ -276,8 +275,8 @@ ax.scatter(x, y, s=18, alpha=0.4, label="Reviews")
 ax.plot(xline, yline, linewidth=1.5, label="Least-squares line")
 
 ax.set_title("Yelp stars vs hedonometer score")
-ax.set_xlabel("Yelp star rating")
-ax.set_ylabel("Hedonometer score")
+ax.set_xlabel("Hedonometer score")
+ax.set_ylabel("Yelp star rating")
 ax.grid(True, alpha=0.25)
 ax.legend(loc="upper left", bbox_to_anchor=(1.02, 1), title=f"Pearson r = {r:.3f}")
 
@@ -294,8 +293,8 @@ ax.scatter(x_z, y_z, s=18, alpha=0.4, label="Standardized reviews")
 ax.plot(xline_z, yline_z, linewidth=1.8, label="Standardized regression")
 
 ax.set_title("Standardized regression: stars vs hedonometer score")
-ax.set_xlabel("Star rating (z-score)")
-ax.set_ylabel("Hedonometer score (z-score)")
+ax.set_xlabel("Hedonometer score (z-score)")
+ax.set_ylabel("Star rating (z-score)")
 ax.grid(True, alpha=0.25)
 
 ax.legend(title=f"b_z = {b_z:.3f}")
