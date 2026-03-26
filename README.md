@@ -313,22 +313,29 @@ Overall, this project underscores the importance of critically assessing how sen
 Clone the repository into one’s VS Code. 
 
 Set up the virtual Python environment
+
    python3 -m venv venv
+
    source venv/bin/activate
 
 Install the dependencies
+
    pip install -r requirements.txt
+
    Ensure that Git LFS has been installed
 
 Download the Yelp dataset from https://www.kaggle.com/datasets/yelp-dataset/yelp-dataset 
+
    This is not in the raw data folder, as the Yelp dataset is over 4GB.
 
 Run the datacleaning.py script in the src/assignment-2. 
+
    This produces the clean dataset sample called yelp_sample.csv.gz
    Running this code may take a few minutes, as the Yelp dataset is being reviewed by each line to prevent the system from crashing. 
    It will be stored in the data/processed/ folder.
 
 Run the measurement.py and the analysis.py
+
    measurement.py produces yelp_hedonometer_scores.csv.gz in the data/processed/ folder
    analysis.py produces summary statistics: stars, summary statistics: hedonometer score,  covariance, pearson correlation, z-score comparison, bootstraps correlation, scatter plot with fitted line, and standardized regression plot
 
