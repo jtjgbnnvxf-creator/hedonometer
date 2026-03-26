@@ -44,17 +44,12 @@ flowchart TD
 ## 4.1 Data acquisition 
 The Yelp Open Dataset was accessed through Kaggle. The dataset can also be obtained via the official website of Business Yelp. An obstacle we encountered when attempting to store the data in GitHub (data/raw/) was that the files exceeded GitHub’s file size limit. Therefore, we downloaded Git Large File Storage (LFS) to store references to the files in the repository. Our initial attempts to manage the files using Git LFS proved to be impractical due to issues with the installation and quota limitations. Consequently, we devised another approach: excluding raw data files via .gitignore and providing clear instructions for downloading and replicating the data. As the next step, each team member independently downloaded the dataset from Kaggle and stored it in the same folder. While this approach preserves the functionality of the repository and avoids technical complexity, it introduces dependency on external data access and assumes consistency between local environments. This may affect reproducibility because of the differences in, for example, dataset versions, the timing of downloads and local configurations, which can lead to variations in the data. 
 
-
-
 ## 4.2 Data sampling and cleaning
-
-
 First, the review dataset was processed line by line to avoid memory limitations. Each JSON was evaluated individually and only the following columns were kept: review ID, user ID, business ID, stars, text, and date. Reviews with empty text and malformed lines were skipped over to prevent processing errors. 
 
 To determine an appropriate sample size, subsamples ranging from 1,000 to 200,000 reviews were evaluated. For each size, the mean and standard deviation of Yelp star ratings were computed. Stability in these summary statistics was observed at approximately 50,000 observations. Therefore, a randomized sample of 50,000 reviews was selected, balancing computational efficiency with statistical reliability.
 
 ### Sample Size Stability Check
- 
 | Sample Size | Mean Stars | SD Stars | Number of Reviews |
 |-------------|------------|----------|-------------------|
 | 1,000   | 3.728 | 1.479 | 1,000 |
@@ -68,7 +63,6 @@ To determine an appropriate sample size, subsamples ranging from 1,000 to 200,00
  
 Lastly, a final random sample of 50,000 was produced in a compressed CSV gzip for further analysis.  
 
-
 ## 4.3 Data matching
 The LabMT dataset was loaded as a dataframe, and irrelevant columns were disregarded. Two columns remained, “word” and “happiness_score”. Words with happiness scores between four and six were removed from the LabMT lexicon. This range is considered emotionally neutral in the LabMT framework. Because neutral words are very common, including them would push average review scores toward the midpoint of the scale and weaken the influence of clearly positive or negative words. Afterwards, 3,731 words were left in the LabMT dictionary. 
 The cleaned random sample of Yelp reviews was tokenized. A dataframe containing one token per row and the associated review ID was created. The two dataframes were then merged, matching “tokens” with the corresponding word in the LabMT dictionary and attaching the associated happiness score. However, not all tokens could be matched. Many reviews contain informal language, slang or abbreviations (for example, one review begins with “never ‘yelped’ b4” [review id: xlvN59kqb_89HViVW3tApg]). Rows that contained a token but had no happiness score were marked as OOV. Out of a total of 21,180,467 tokens, 15,643,779 tokens were not matched, for an overall OOV rate of ~0.7386.
@@ -81,7 +75,6 @@ the proportion of OOV tokens in each review
 The summary was then merged back onto the cleaned Yelp reviews sample. The final dataset was saved as a CSV gzip file. Below is a table showing each column included in the final dataset, along with its Dtype and the number of NaN values in it.
 
 ### Dataset Description
-
 | Column Name         | NaN | Dtype    |
 |---------------------|-----|----------|
 | review_id           | 0   | str      |
@@ -114,25 +107,25 @@ D[Quantify uncertainty in correlation estimates using bootstrapping]
 E[Interpret relationship by transforming star ratings and hedonometer scores into comparable units using standardized regression]
 ```
 
-Descriptive statistics
+### Descriptive statistics
 Descriptive statistics (mean, median, variance, skewness, etc.) were computed for star rating and hedonometer score. As text length has been shown to influence hedonometer accuracy (Reagan et al., 2015), the same was done for text length. 
 
-Grouped analysis
+### Grouped analysis
 To explore the relationship between variables, observations were grouped by star rating. For each group, the mean, median and standard deviation were computed.
 
-Correlation analysis
+### Correlation analysis
 The linear association between star ratings and happiness scores was assessed using covariance and Pearson’s correlation coefficient, defined as:
 r = cov(x, y) / (sₓ sᵧ)
 This approach assumes an approximately linear relationship, which was visually assessed using a scatter plot with a fitted regression line.
 
-Bootstrap procedure
+### Bootstrap procedure
 To quantify uncertainty in the correlation estimate, bootstrap resampling was performed on the 50,000-observation sample. The bootstrap distribution was used to estimate the standard error and 95% confidence interval.
 
-Standardized regression
+### Standardized regression
 To make the relationship between the variables more interpretable, both variables were standardized (z-scores), and a linear regression model was fitted:
 zₛₜₐᵣₛ = a_z + b_z zₕₑdₒₙₒₘₑₜₑᵣ
 
-Z-score gap analysis
+### Z-score gap analysis
 To further compare the variables, a z-gap was defined:
 z-gap = z(stars) - z(hedonometer)
 This metric captures the discrepancy between star rating and hedonometer score. A positive z-gap indicates that star rating is more positive than the language as measured by the hedonometer. A negative z-gap indicates that the language is more positive than the star rating. The z-gap was analyzed overall and grouped by star rating.
@@ -142,10 +135,9 @@ This metric captures the discrepancy between star rating and hedonometer score. 
 ## 5.1 Descriptive statistics
 Review length 
 Reviews contain on average 105 tokens (median = 75), with a high standard deviation (~98), indicating substantial variability and a right-skewed distribution with some very long reviews. When examined by star rating, a pattern can be observed. 
-fig.1 ![alt text](distribution_of_review_lengths.png)
+fig.1 ![alt text](figures/distribution_of_review_lengths.png)
 
 ### Average Tokens per Review by Star Rating
-
 | Stars | Avg Tokens per Review |
 |-------|----------------------|
 | 1.0 | 132.3730 |
@@ -161,7 +153,6 @@ will be explored in discussion.
 fig.2 ![alt text](figures/avg_tokens_by_stars.png)
 
 ### Star ratings
-​​
 | Statistic | Value |
 |------------------|--------|
 | n | 50,000 |
@@ -181,12 +172,12 @@ fig.2 ![alt text](figures/avg_tokens_by_stars.png)
 | MAD | 1.000 |
 | skewness | -0.844 |
 | excess kurtosis | -0.773 |
+
 Star ratings have a mean of 3.745 and a median of 4.000. The distribution is negatively skewed (skewness coefficient = -0.844), with a longer tail on the left. Most values are then on the right, indicating that star ratings are concentrated around higher values. Excess kurtosis is negative (-0.773), which means that the data is spread across the scale, rather concentrated in the tales, so not so many extremes are present. The interquartile range is 2.000, with 50% of the ratings falling in between three and five. The standard deviation is 1.478, suggesting a high variability in review rating.
 
-fig.3 ![alt text](star_ratings_bar_chart.png)
+fig.3 ![alt text](figures/star_ratings_bar_chart.png)
 
 ### Hedonometer score
-
 | Statistic        | Value |
 |------------------|-------|
 | n                | 49,990 |
@@ -209,8 +200,7 @@ fig.3 ![alt text](star_ratings_bar_chart.png)
 
 The happiness scores range from 1.960 to 8.180, with a mean of 6.329 and median of 6.383. The distribution is also slightly negatively skewed (skewness coefficient = -0.826) with a positive excess kurtosis of 2.275, indicating a heavier tail than for a normal distribution. The interquartile range is 0.566, meaning that most values are clustered within a relatively small range. This is also evident from the standard deviation (0.466), which suggests a relatively low variability in happiness scores among the reviews.
 
-fig.4 ![alt text](hedonometer_histogram.png)
-
+fig.4 ![alt text](figures/hedonometer_histogram.png)
 
 | Measure           | Star ratings | Hedonometer score | Interpretation                                      |
 |------------------|-------------|------------------|-----------------------------------------------------|
@@ -233,20 +223,21 @@ Overall, both variables are skewed toward positive values, but happiness scores 
 | 4.0 | 6.4593 | 6.4651 | 10663 | 0.3321 |
 | 5.0 | 6.5344 | 6.5443 | 22911 | 0.3540 |
 
-fig.5 ![alt text](happiness_by_star.png)
+fig.5 ![alt text](figures/happiness_by_star.png)
 
 Hedonometer scores increase monotonically with star rating. One-star reviews have a mean happiness score of 5.741, while five stars have a mean of 6.534. The intermediate values follow the same trend, indicating a positive relationship between textual sentiment and ratings. 
 
 The standard deviation is highest amongst low ratings (one-star ratings, two-star ratings) suggesting more emotionally varied language in lower ratings.
 
-## 5.3 Association between star rating and happiness
-
+## 5.3 Association Between Star Rating and Happiness
 ### Association Between Star Rating and Happiness
+
 | Measure | Value |
 |--------|------|
 | Sample covariance (stars, happiness) | 0.4203 |
 | SD (stars) | 1.478 |
 | SD (happiness) | 0.466 |
+
 The sample covariance is 0.4203, suggesting that variables move together in the same direction. 
 
 fig.6 ![alt text](figures/stars_vs_happiness.png)
@@ -260,6 +251,7 @@ The coefficient 0.6107 further indicates a moderately strong positive relationsh
 | Sample covariance (stars, happiness) | 0.4203 |
 | SD (stars) | 1.478 |
 | SD (happiness) | 0.466 |
+
 The histogram below illustrates the bootstrap distribution of Pearson’s correlation. It is approximately symmetrical, centered around 0.6110 with a standard error of 0.0032. This value is very close to the observed estimate of 0.6107. The 95% bootstrap confidence interval ranges from 0.6047 to 0.6169. This suggests that the positive relationship between star ratings and hedonometer scores is not due to random sampling variation, but reflects a stable association in the data. At the same time, the narrow confidence interval reinforces that the strength of the relationship is consistently moderate rather than strong, supporting the interpretation that sentiment scores capture general trends but do not fully explain variation in ratings.
 
 fig.7 ![alt text](figures/bootstrap_correlation.png)
@@ -278,7 +270,6 @@ A one standard deviation increase in hedonometer score corresponds to a 0.6107 s
 The mean is 0.0000 and the median is 0.0076, with a standard deviation of 0.8784. The standard deviation reflects the substantial variability in the difference between ratings and sentiment, consistent with the moderate rather than perfect correlation between the variables. The mean and median z-gaps show that hedonometer score and star rating are overall aligned.
 
 ### Z-Score Gap by Star Rating
-
 | Stars | Mean X Z | Mean Y Z | Mean Z Gap | Median Z Gap | Count |
 |-------|----------|----------|------------|--------------|-------|
 | 1.0 | -1.2741 | -1.8631 | 0.5890 | 0.7008 | 30425 |
