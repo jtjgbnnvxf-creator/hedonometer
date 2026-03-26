@@ -96,7 +96,7 @@ The 13 missing values in the columns "total_tokens", "matched_tokens", "oov_toke
 To answer the research question, the following steps were taken:
 ```mermaid
 flowchart LR
-A[Compute descriptive statistics for variables of interest<br/>(star rating, happiness score and review length)]
+A[Compute descriptive statistics for variables of interest]
 -->
 B[Examine happiness by star rating by grouping data and computing mean, median, standard deviation, and happiness score]
 -->
