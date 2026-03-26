@@ -278,10 +278,8 @@ The mean is 0.0000 and the median is 0.0076, with a standard deviation of 0.8784
 | 4.0 | 0.2791 | 0.1712 | 0.1078 | 0.1195 | 42266 |
 | 5.0 | 0.4448 | 0.8494 | -0.4045 | -0.3839 | 91775 |
 
-A clear pattern emerges:
-Lower ratings (one to three): ratings are more positive than the language suggests
-Mid ratings (four): strong alignment
-Highest rating (five): language is more positive than the ratings suggest
+A clear pattern emerges:for lower ratings (one to three), ratings are more positive than the language suggests; for mid ratings (four): there is the strongest alignment; for the highest rating (five): language is more positive than the ratings suggest.
+
 This indicates a systematic mismatch between ratings and textual sentiment that varies by rating level.
 fig.8 ![alt text](figures/z_gap_by_star_rating.png)
 
