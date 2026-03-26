@@ -1,4 +1,4 @@
-Hedonometer Project Group 8: Investigating the Correlation between Happiness Scores and Star Ratings in the Yelp Open Dataset
+## Hedonometer Project Group 8: Investigating the Correlation between Happiness Scores and Star Ratings in the Yelp Open Dataset
 
 
 # 1. Introduction
